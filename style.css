@@ -868,3 +868,217 @@ footer {
   opacity: 1;
   transform: translateY(0);
 }
+
+/* =================== PARTICLE CANVAS =================== */
+#particle-canvas {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  width: 100%;
+  height: 100%;
+}
+
+/* Push hero content above canvas */
+.hero-content,
+.hero-terminal {
+  z-index: 2;
+  position: relative;
+}
+
+/* =================== TERMINAL TYPING (JS-driven) =================== */
+.t-line {
+  opacity: 0;
+  /* remove CSS animation — JS controls timing now */
+  animation: none;
+}
+
+.t-cursor {
+  display: inline-block;
+  width: 8px;
+  height: 0.9em;
+  background: var(--green);
+  margin-left: 2px;
+  vertical-align: text-bottom;
+  animation: blink 0.8s infinite;
+}
+
+/* =================== ENHANCED PROJECT CARDS =================== */
+.project-card {
+  transition: background 0.25s, box-shadow 0.25s;
+}
+
+.project-card::after {
+  content: '';
+  position: absolute;
+  bottom: 0; right: 0;
+  width: 20px; height: 20px;
+  border-right: 1px solid var(--green-dark);
+  border-bottom: 1px solid var(--green-dark);
+  transition: width 0.3s, height 0.3s, border-color 0.3s;
+  pointer-events: none;
+}
+
+.project-card:hover::after,
+.project-card.featured::after {
+  width: 36px; height: 36px;
+  border-color: var(--green);
+}
+
+.project-card:hover {
+  box-shadow: 0 0 40px rgba(0,255,136,0.08), inset 0 0 30px rgba(0,255,136,0.03);
+}
+
+.project-card:hover .project-card-inner {
+  background-image: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 3px,
+    rgba(0,255,136,0.012) 3px,
+    rgba(0,255,136,0.012) 4px
+  );
+}
+
+/* proj-link as button */
+.proj-link {
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+/* =================== PROJECT MODAL =================== */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: rgba(6,13,10,0.85);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s;
+}
+
+.modal-overlay.open {
+  opacity: 1;
+  pointer-events: all;
+}
+
+.modal {
+  position: relative;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  max-width: 680px;
+  width: 90%;
+  max-height: 80vh;
+  overflow-y: auto;
+  padding: 3rem;
+  box-shadow: 0 0 80px rgba(0,255,136,0.12);
+  transform: translateY(20px);
+  transition: transform 0.3s;
+}
+
+.modal::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: var(--green);
+  box-shadow: 0 0 20px var(--green);
+}
+
+.modal-overlay.open .modal {
+  transform: translateY(0);
+}
+
+.modal-close {
+  position: absolute;
+  top: 1.2rem; right: 1.2rem;
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--muted);
+  font-size: 0.85rem;
+  width: 32px; height: 32px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: var(--font-mono);
+}
+
+.modal-close:hover {
+  border-color: var(--green);
+  color: var(--green);
+  box-shadow: 0 0 12px rgba(0,255,136,0.3);
+}
+
+.modal-tag-row {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.2rem;
+}
+
+.modal-title {
+  font-family: var(--font-display);
+  font-size: clamp(1.1rem, 2.5vw, 1.5rem);
+  font-weight: 700;
+  color: var(--white);
+  letter-spacing: 0.06em;
+  margin-bottom: 1.2rem;
+  line-height: 1.3;
+}
+
+.modal-desc {
+  color: var(--muted);
+  font-size: 0.95rem;
+  line-height: 1.8;
+  margin-bottom: 1.5rem;
+}
+
+.modal-details {
+  margin-bottom: 1.5rem;
+}
+
+.modal-details ul {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.modal-details li {
+  font-size: 0.88rem;
+  color: var(--muted);
+  padding-left: 1.2rem;
+  position: relative;
+  line-height: 1.6;
+}
+
+.modal-details li::before {
+  content: '▹';
+  position: absolute;
+  left: 0;
+  color: var(--green);
+  font-size: 0.7rem;
+  top: 0.18em;
+}
+
+.modal-metrics {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  border-top: 1px solid var(--border);
+  padding-top: 1.2rem;
+}
+
+.modal-metric-chip {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  color: var(--green-dim);
+  background: rgba(0,255,136,0.06);
+  border: 1px solid var(--green-dark);
+  padding: 0.3rem 0.7rem;
+  letter-spacing: 0.08em;
+}

@@ -7,7 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;900&family=Share+Tech+Mono&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
@@ -34,6 +34,7 @@
   <!-- HERO -->
   <section id="hero">
     <div class="hero-grid-bg"></div>
+    <canvas id="particle-canvas"></canvas>
     <div class="hero-content">
       <div class="hero-eyebrow">
         <span class="mono">&gt; INITIALIZING PROFILE...</span>
@@ -135,7 +136,7 @@
     <p class="section-intro">A selection of data analysis and public health research projects. More coming soon.</p>
     <div class="projects-grid">
 
-      <div class="project-card featured">
+      <div class="project-card featured" data-modal="heat">
         <div class="project-card-inner">
           <div class="project-tag-row">
             <span class="proj-tag">THESIS</span>
@@ -149,12 +150,12 @@
           <div class="project-footer">
             <span class="proj-metric">60M records</span>
             <span class="proj-metric">2010–2019</span>
-            <a href="#" class="proj-link">VIEW DETAILS →</a>
+            <button class="proj-link modal-trigger">VIEW DETAILS →</button>
           </div>
         </div>
       </div>
 
-      <div class="project-card">
+      <div class="project-card" data-modal="carter">
         <div class="project-card-inner">
           <div class="project-tag-row">
             <span class="proj-tag">DATABASE</span>
@@ -166,12 +167,12 @@
           </p>
           <div class="project-footer">
             <span class="proj-metric">SQL / R / ShinyApps</span>
-            <a href="#" class="proj-link">VIEW DETAILS →</a>
+            <button class="proj-link modal-trigger">VIEW DETAILS →</button>
           </div>
         </div>
       </div>
 
-      <div class="project-card">
+      <div class="project-card" data-modal="pm25">
         <div class="project-card-inner">
           <div class="project-tag-row">
             <span class="proj-tag">AIR QUALITY</span>
@@ -184,7 +185,7 @@
           </p>
           <div class="project-footer">
             <span class="proj-metric">Georgia EPD</span>
-            <a href="#" class="proj-link">VIEW DETAILS →</a>
+            <button class="proj-link modal-trigger">VIEW DETAILS →</button>
           </div>
         </div>
       </div>
@@ -366,6 +367,18 @@
     </div>
   </footer>
 
-  <script src="js/main.js"></script>
+  <!-- PROJECT MODAL -->
+  <div class="modal-overlay" id="modal-overlay" role="dialog" aria-modal="true">
+    <div class="modal" id="project-modal">
+      <button class="modal-close" id="modal-close" aria-label="Close">✕</button>
+      <div class="modal-tag-row" id="modal-tags"></div>
+      <h2 class="modal-title" id="modal-title"></h2>
+      <div class="modal-desc" id="modal-desc"></div>
+      <div class="modal-details" id="modal-details"></div>
+      <div class="modal-metrics" id="modal-metrics"></div>
+    </div>
+  </div>
+
+  <script src="main.js"></script>
 </body>
 </html>
