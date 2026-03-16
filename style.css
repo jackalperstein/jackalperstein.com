@@ -366,6 +366,12 @@ section:not(#hero) {
   padding: 7rem 2rem;
 }
 
+/* Standalone page sections need top padding for the fixed nav */
+section.page-section {
+  padding-top: 8rem;
+  min-height: calc(100vh - 80px);
+}
+
 .section-header {
   display: flex;
   align-items: center;
