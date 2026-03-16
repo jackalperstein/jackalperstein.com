@@ -2,52 +2,40 @@
 //  JACK ALPERSTEIN PORTFOLIO · main.js
 // ============================================
 
-// ─── Active nav highlighting on scroll ───────
-const sections = document.querySelectorAll('section[id]');
-const navLinks = document.querySelectorAll('.nav-link');
-
-const sectionObserver = new IntersectionObserver((entries) => {
-  entries.forEach(entry => {
-    if (entry.isIntersecting) {
-      navLinks.forEach(l => l.classList.remove('active'));
-      const active = document.querySelector(`.nav-link[data-section="${entry.target.id}"]`);
-      if (active) active.classList.add('active');
-    }
-  });
-}, { threshold: 0.3 });
-
-sections.forEach(s => sectionObserver.observe(s));
-
 // ─── Fade-in on scroll ───────────────────────
 const fadeEls = document.querySelectorAll(
   '.about-grid, .stat-card, .project-card, .timeline-item, .contact-grid, .section-header'
 );
 
-fadeEls.forEach(el => el.classList.add('fade-in'));
+if (fadeEls.length) {
+  fadeEls.forEach(el => el.classList.add('fade-in'));
 
-const fadeObserver = new IntersectionObserver((entries) => {
-  entries.forEach(entry => {
-    if (entry.isIntersecting) {
-      setTimeout(() => {
-        entry.target.classList.add('visible');
-      }, 80 * (entry.target.dataset.delay || 0));
-      fadeObserver.unobserve(entry.target);
-    }
+  const fadeObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        setTimeout(() => {
+          entry.target.classList.add('visible');
+        }, 80 * (entry.target.dataset.delay || 0));
+        fadeObserver.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.1 });
+
+  fadeEls.forEach((el, i) => {
+    el.dataset.delay = i;
+    fadeObserver.observe(el);
   });
-}, { threshold: 0.1 });
-
-fadeEls.forEach((el, i) => {
-  el.dataset.delay = i;
-  fadeObserver.observe(el);
-});
+}
 
 // ─── Nav border on scroll ────────────────────
 const nav = document.getElementById('nav');
-window.addEventListener('scroll', () => {
-  nav.style.borderBottomColor = window.scrollY > 50
-    ? 'var(--border)'
-    : 'transparent';
-});
+if (nav) {
+  window.addEventListener('scroll', () => {
+    nav.style.borderBottomColor = window.scrollY > 50
+      ? 'var(--border)'
+      : 'transparent';
+  });
+}
 
 // ─── Staggered timeline items ────────────────
 document.querySelectorAll('.timeline-item').forEach((item, i) => {
@@ -57,6 +45,8 @@ document.querySelectorAll('.timeline-item').forEach((item, i) => {
 // ─── Terminal Typing Effect ───────────────────
 (function initTerminal() {
   const lines = document.querySelectorAll('.t-line');
+  if (!lines.length) return;
+
   const originals = [...lines].map(l => ({
     el: l,
     html: l.innerHTML,
@@ -90,7 +80,6 @@ document.querySelectorAll('.timeline-item').forEach((item, i) => {
     typeChar();
   }
 
-  // Small helper to prevent XSS when setting textContent as innerHTML
   function escapeHtml(str) {
     return str
       .replace(/&/g, '&amp;')
@@ -108,6 +97,7 @@ document.querySelectorAll('.timeline-item').forEach((item, i) => {
   const ctx = canvas.getContext('2d');
 
   const hero = document.getElementById('hero');
+  if (!hero) return;
 
   function resize() {
     canvas.width = hero.offsetWidth;
@@ -130,7 +120,6 @@ document.querySelectorAll('.timeline-item').forEach((item, i) => {
   function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // Connections
     for (let i = 0; i < particles.length; i++) {
       for (let j = i + 1; j < particles.length; j++) {
         const dx = particles[i].x - particles[j].x;
@@ -148,7 +137,6 @@ document.querySelectorAll('.timeline-item').forEach((item, i) => {
       }
     }
 
-    // Dots
     particles.forEach(p => {
       ctx.beginPath();
       ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
@@ -171,6 +159,9 @@ document.querySelectorAll('.timeline-item').forEach((item, i) => {
 
 // ─── Project Modal ────────────────────────────
 (function initModals() {
+  const overlay = document.getElementById('modal-overlay');
+  if (!overlay) return;
+
   const projectData = {
     heat: {
       title: 'Heat Exposure & Emergency Room Visits in Southern California',
@@ -183,7 +174,7 @@ document.querySelectorAll('.timeline-item').forEach((item, i) => {
         'Examined effect modification by language group, age, and geographic region',
         'Identified statistically significant increased ER risk on extreme heat days, with differential risk by language group'
       ],
-      metrics: ['60M+ records', '2010–2019', 'R / tidyverse', 'Case-crossover design', 'Conditional logistic regression']
+      metrics: ['60M+ records', '2010\u20132019', 'R / tidyverse', 'Case-crossover design', 'Conditional logistic regression']
     },
     carter: {
       title: 'Carter Center Trachoma Lab Database Modernization',
@@ -203,7 +194,7 @@ document.querySelectorAll('.timeline-item').forEach((item, i) => {
       tags: ['AIR QUALITY', 'ENV JUSTICE', 'R', 'GIS'],
       desc: 'Analyzed low-cost particulate matter (PM2.5) sensor networks in environmental justice communities across Georgia, producing policy-relevant visualizations and compliance reports for the Georgia Environmental Protection Division.',
       details: [
-        'Processed and QA/QC'd time-series data from PurpleAir low-cost PM2.5 sensors',
+        'Processed and QA/QC\'d time-series data from PurpleAir low-cost PM2.5 sensors',
         'Compared low-cost sensor data to EPA Federal Reference Monitor (FRM) readings',
         'Produced spatial visualizations using GIS tools to identify pollution hotspots in EJ communities',
         'Authored compliance reports supporting EPA Ethylene Oxide and PM2.5 monitoring requirements',
@@ -213,7 +204,6 @@ document.querySelectorAll('.timeline-item').forEach((item, i) => {
     }
   };
 
-  const overlay = document.getElementById('modal-overlay');
   const modalTitle = document.getElementById('modal-title');
   const modalTags = document.getElementById('modal-tags');
   const modalDesc = document.getElementById('modal-desc');
@@ -249,16 +239,16 @@ document.querySelectorAll('.timeline-item').forEach((item, i) => {
     document.body.style.overflow = '';
   }
 
-  // Trigger from project card click
   document.querySelectorAll('.project-card[data-modal]').forEach(card => {
-    card.addEventListener('click', (e) => {
-      // Don't double-fire from button
+    card.addEventListener('click', () => {
       openModal(card.dataset.modal);
     });
     card.style.cursor = 'pointer';
   });
 
-  closeBtn.addEventListener('click', closeModal);
+  if (closeBtn) {
+    closeBtn.addEventListener('click', closeModal);
+  }
 
   overlay.addEventListener('click', (e) => {
     if (e.target === overlay) closeModal();
