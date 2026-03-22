@@ -2,9 +2,9 @@
 //  JACK ALPERSTEIN PORTFOLIO · main.js
 // ============================================
 
-// ─── Fade-in on scroll ───────────────────────
+// --- Fade-in on scroll ---
 const fadeEls = document.querySelectorAll(
-  '.about-grid, .stat-card, .project-card, .timeline-item, .contact-grid, .section-header'
+  '.about-grid, .stat-card, .project-card, .timeline-item, .contact-grid, .section-header, .hero-impact'
 );
 
 if (fadeEls.length) {
@@ -27,70 +27,24 @@ if (fadeEls.length) {
   });
 }
 
-// ─── Nav border on scroll ────────────────────
+// --- Nav shadow on scroll ---
 const nav = document.getElementById('nav');
 if (nav) {
   window.addEventListener('scroll', () => {
-    nav.style.borderBottomColor = window.scrollY > 50
-      ? 'var(--border)'
-      : 'transparent';
+    if (window.scrollY > 50) {
+      nav.style.boxShadow = '0 2px 12px rgba(15,61,102,0.1)';
+    } else {
+      nav.style.boxShadow = '0 1px 3px rgba(15,61,102,0.08)';
+    }
   });
 }
 
-// ─── Staggered timeline items ────────────────
+// --- Staggered timeline items ---
 document.querySelectorAll('.timeline-item').forEach((item, i) => {
   item.style.transitionDelay = `${i * 80}ms`;
 });
 
-// ─── Terminal Typing Effect ───────────────────
-(function initTerminal() {
-  const lines = document.querySelectorAll('.t-line');
-  if (!lines.length) return;
-
-  const originals = [...lines].map(l => ({
-    el: l,
-    html: l.innerHTML,
-    text: l.textContent.trim()
-  }));
-
-  // Clear all lines
-  lines.forEach(l => { l.style.opacity = '0'; l.innerHTML = ''; });
-
-  let lineIdx = 0;
-
-  function typeLine() {
-    if (lineIdx >= originals.length) return;
-    const { el, html, text } = originals[lineIdx];
-    el.style.opacity = '1';
-    let charIdx = 0;
-
-    function typeChar() {
-      if (charIdx < text.length) {
-        el.innerHTML = escapeHtml(text.slice(0, charIdx + 1))
-          + '<span class="t-cursor"></span>';
-        charIdx++;
-        setTimeout(typeChar, charIdx === 1 ? 0 : 28);
-      } else {
-        // Done — restore full styled HTML
-        el.innerHTML = html;
-        lineIdx++;
-        setTimeout(typeLine, 180);
-      }
-    }
-    typeChar();
-  }
-
-  function escapeHtml(str) {
-    return str
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;');
-  }
-
-  setTimeout(typeLine, 400);
-})();
-
-// ─── Particle / Constellation Background ─────
+// --- Particle / Constellation Background ---
 (function initParticles() {
   const canvas = document.getElementById('particle-canvas');
   if (!canvas) return;
@@ -106,14 +60,14 @@ document.querySelectorAll('.timeline-item').forEach((item, i) => {
   resize();
   window.addEventListener('resize', resize);
 
-  const COUNT = 70;
-  const MAX_DIST = 130;
+  const COUNT = 50;
+  const MAX_DIST = 120;
 
   const particles = Array.from({ length: COUNT }, () => ({
     x: Math.random() * canvas.width,
     y: Math.random() * canvas.height,
-    vx: (Math.random() - 0.5) * 0.25,
-    vy: (Math.random() - 0.5) * 0.25,
+    vx: (Math.random() - 0.5) * 0.2,
+    vy: (Math.random() - 0.5) * 0.2,
     r: Math.random() * 1.2 + 0.4
   }));
 
@@ -126,9 +80,9 @@ document.querySelectorAll('.timeline-item').forEach((item, i) => {
         const dy = particles[i].y - particles[j].y;
         const dist = Math.sqrt(dx * dx + dy * dy);
         if (dist < MAX_DIST) {
-          const alpha = 0.18 * (1 - dist / MAX_DIST);
+          const alpha = 0.12 * (1 - dist / MAX_DIST);
           ctx.beginPath();
-          ctx.strokeStyle = `rgba(0,255,136,${alpha})`;
+          ctx.strokeStyle = `rgba(255,255,255,${alpha})`;
           ctx.lineWidth = 0.6;
           ctx.moveTo(particles[i].x, particles[i].y);
           ctx.lineTo(particles[j].x, particles[j].y);
@@ -140,7 +94,7 @@ document.querySelectorAll('.timeline-item').forEach((item, i) => {
     particles.forEach(p => {
       ctx.beginPath();
       ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-      ctx.fillStyle = 'rgba(0,255,136,0.55)';
+      ctx.fillStyle = 'rgba(255,255,255,0.4)';
       ctx.fill();
 
       p.x += p.vx;
@@ -157,7 +111,7 @@ document.querySelectorAll('.timeline-item').forEach((item, i) => {
   draw();
 })();
 
-// ─── Project Modal ────────────────────────────
+// --- Project Modal ---
 (function initModals() {
   const overlay = document.getElementById('modal-overlay');
   if (!overlay) return;
