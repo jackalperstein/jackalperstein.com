@@ -1024,3 +1024,253 @@ footer {
   padding: 0.3rem 0.7rem;
   border-radius: 4px;
 }
+
+/* =================== JOURNEY PAGE =================== */
+.journey-wrapper {
+  display: flex;
+  position: relative;
+  min-height: 100vh;
+}
+
+.globe-container {
+  position: sticky;
+  top: 0;
+  width: 50%;
+  height: 100vh;
+  background: linear-gradient(135deg, #0c2340 0%, #122d4d 50%, #0f2137 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  z-index: 1;
+}
+
+#globe-canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.globe-location-label {
+  position: absolute;
+  bottom: 2.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: var(--font-display);
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  color: rgba(255,255,255,0.8);
+  background: rgba(12,35,64,0.6);
+  backdrop-filter: blur(8px);
+  padding: 0.5rem 1.2rem;
+  border-radius: 20px;
+  border: 1px solid rgba(255,255,255,0.15);
+  opacity: 0;
+  transition: opacity 0.5s;
+  white-space: nowrap;
+}
+
+.globe-location-label.visible {
+  opacity: 1;
+}
+
+.journey-chapters {
+  width: 50%;
+  position: relative;
+  z-index: 2;
+}
+
+/* CHAPTER BLOCKS */
+.chapter {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 4rem 3rem;
+}
+
+.chapter-intro {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.chapter-outro {
+  min-height: 80vh;
+}
+
+.chapter-card {
+  max-width: 520px;
+}
+
+.journey-title {
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 4vw, 3rem);
+  font-weight: 700;
+  color: var(--navy);
+  margin-bottom: 1rem;
+}
+
+.journey-subtitle {
+  font-size: 1.05rem;
+  color: var(--text-muted);
+  line-height: 1.8;
+  margin-bottom: 2rem;
+}
+
+.scroll-hint {
+  font-size: 0.8rem;
+  color: var(--blue);
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  animation: scrollBounce 2s infinite;
+}
+
+@keyframes scrollBounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(6px); }
+}
+
+.chapter-date {
+  font-family: var(--font-display);
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--yellow);
+  letter-spacing: 0.06em;
+  margin-bottom: 0.5rem;
+  text-transform: uppercase;
+}
+
+.chapter-heading {
+  font-family: var(--font-display);
+  font-size: clamp(1.4rem, 3vw, 2rem);
+  font-weight: 700;
+  color: var(--navy);
+  margin-bottom: 0.3rem;
+  line-height: 1.2;
+}
+
+.chapter-place {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--blue);
+  margin-bottom: 1.2rem;
+}
+
+.chapter-text {
+  font-size: 0.95rem;
+  color: var(--text-muted);
+  line-height: 1.85;
+}
+
+/* PHOTO PLACEHOLDERS */
+.chapter-photos {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  margin-top: 2.5rem;
+  padding-bottom: 2rem;
+}
+
+.chapter-gallery {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-top: 2.5rem;
+  padding-bottom: 2rem;
+}
+
+.photo-frame {
+  border-radius: 10px;
+  overflow: hidden;
+  background: var(--bg2);
+  border: 2px dashed var(--border);
+  transition: border-color 0.3s;
+}
+
+.photo-frame:hover {
+  border-color: var(--blue-light);
+}
+
+.photo-placeholder {
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, var(--bg2), var(--bg3));
+}
+
+.photo-placeholder span {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  font-weight: 500;
+  opacity: 0.5;
+  letter-spacing: 0.04em;
+}
+
+.photo-caption {
+  padding: 0.5rem 0.75rem;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  font-style: italic;
+  border-top: 1px solid var(--border2);
+}
+
+/* OUTRO */
+.outro-ctas {
+  display: flex;
+  gap: 1rem;
+  margin-top: 2rem;
+  flex-wrap: wrap;
+}
+
+.btn-ghost-dark {
+  font-family: var(--font-display);
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  padding: 0.85rem 2rem;
+  border: 2px solid var(--blue);
+  color: var(--blue);
+  text-decoration: none;
+  transition: all 0.2s;
+  display: inline-block;
+  border-radius: 6px;
+}
+
+.btn-ghost-dark:hover {
+  background: var(--blue-pale);
+}
+
+/* JOURNEY RESPONSIVE */
+@media (max-width: 900px) {
+  .journey-wrapper {
+    flex-direction: column;
+  }
+
+  .globe-container {
+    position: relative;
+    width: 100%;
+    height: 50vh;
+  }
+
+  .journey-chapters {
+    width: 100%;
+  }
+
+  .chapter {
+    padding: 3rem 1.5rem;
+    min-height: auto;
+  }
+
+  .chapter-intro {
+    min-height: 60vh;
+  }
+
+  .chapter-gallery {
+    grid-template-columns: 1fr;
+  }
+}
