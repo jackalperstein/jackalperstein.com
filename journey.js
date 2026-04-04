@@ -181,26 +181,35 @@
     );
   }
 
-  // --- CAMERA STATE ---
-  const initPos = latLonToCamera(
-    locations.intro.lat,
-    locations.intro.lon,
-    locations.intro.dist
-  );
+  // --- CAMERA STATE (spherical interpolation) ---
+  // Track camera as lat/lon/dist and interpolate in spherical space
+  // so the camera follows the globe surface instead of cutting through it
+  let currentSpherical = {
+    lat: locations.intro.lat,
+    lon: locations.intro.lon,
+    dist: locations.intro.dist
+  };
+  let targetSpherical = { ...currentSpherical };
+
+  const initPos = latLonToCamera(currentSpherical.lat, currentSpherical.lon, currentSpherical.dist);
   camera.position.copy(initPos);
   camera.lookAt(0, 0, 0);
 
-  let targetPos = initPos.clone();
-  let currentLabel = '';
-
   const labelEl = document.getElementById('globe-label');
+
+  // Shortest-path longitude delta (handles wraparound)
+  function shortestLonDelta(from, to) {
+    let delta = to - from;
+    while (delta > 180) delta -= 360;
+    while (delta < -180) delta += 360;
+    return delta;
+  }
 
   // --- SCROLL OBSERVER ---
   const chapters = document.querySelectorAll('.chapter');
   let activeChapter = 'intro';
 
   const observer = new IntersectionObserver((entries) => {
-    // Find the most visible chapter
     let bestEntry = null;
     let bestRatio = 0;
     entries.forEach(entry => {
@@ -215,7 +224,7 @@
       if (locKey && locKey !== activeChapter && locations[locKey]) {
         activeChapter = locKey;
         const loc = locations[locKey];
-        targetPos = latLonToCamera(loc.lat, loc.lon, loc.dist);
+        targetSpherical = { lat: loc.lat, lon: loc.lon, dist: loc.dist };
 
         // Update label
         if (labelEl) {
@@ -245,16 +254,24 @@
   chapters.forEach(ch => observer.observe(ch));
 
   // --- ANIMATION LOOP ---
-  const lerpSpeed = 0.018;
+  const lerpSpeed = 0.025;
   let idleRotation = 0;
 
   function animate() {
     requestAnimationFrame(animate);
 
-    // Smooth camera move
-    camera.position.x += (targetPos.x - camera.position.x) * lerpSpeed;
-    camera.position.y += (targetPos.y - camera.position.y) * lerpSpeed;
-    camera.position.z += (targetPos.z - camera.position.z) * lerpSpeed;
+    // Interpolate in spherical coordinates (smooth globe-surface path)
+    currentSpherical.lat += (targetSpherical.lat - currentSpherical.lat) * lerpSpeed;
+    currentSpherical.lon += shortestLonDelta(currentSpherical.lon, targetSpherical.lon) * lerpSpeed;
+    currentSpherical.dist += (targetSpherical.dist - currentSpherical.dist) * lerpSpeed;
+
+    // Normalize longitude
+    while (currentSpherical.lon > 180) currentSpherical.lon -= 360;
+    while (currentSpherical.lon < -180) currentSpherical.lon += 360;
+
+    // Convert to camera position
+    const camPos = latLonToCamera(currentSpherical.lat, currentSpherical.lon, currentSpherical.dist);
+    camera.position.copy(camPos);
     camera.lookAt(0, 0, 0);
 
     // Subtle idle rotation when zoomed out
