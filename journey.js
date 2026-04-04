@@ -180,8 +180,8 @@
     const endPt = pathPoints[i + 1];
 
     const angularDist = startPt.angleTo(endPt);
-    // Height multiplier: short arcs stay low, long arcs soar high
-    const heightMul = RADIUS * (1.15 + angularDist * 0.7);
+    // Flight-path height: just above the surface, slightly higher for longer routes
+    const heightMul = RADIUS * (1.03 + angularDist * 0.08);
 
     // Place two control points at 1/3 and 2/3 along the great circle, pushed outward
     const cp1 = new THREE.Vector3().lerpVectors(startPt, endPt, 0.33);
