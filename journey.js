@@ -111,23 +111,25 @@
     chad:       { lat: 9.0, lon: 18.5,  dist: 10, label: 'Moyen-Chari, Chad' },
     atlanta:    { lat: 33.75, lon: -84.39, dist: 11, label: 'Atlanta, Georgia' },
     losangeles: { lat: SOCAL.lat, lon: SOCAL.lon, dist: SOCAL.dist, label: 'Southern California' },
+    kinshasa:   { lat: -4.32, lon: 15.31, dist: 10, label: 'Kinshasa, DRC' },
+    losangeles2:{ lat: SOCAL.lat, lon: SOCAL.lon, dist: SOCAL.dist, label: 'Southern California' },
     outro:      { lat: 20, lon: -40,   dist: 22, label: '' }
   };
 
   // --- MARKERS ---
-  // Only 4 unique dots: Southern California, Berkeley, Cameroon, Chad, Atlanta
   const markerGroup = new THREE.Group();
   scene.add(markerGroup);
 
   const markerMeshes = {};
-  const markerLocations = ['socal', 'berkeley', 'cameroon', 'chad', 'atlanta'];
+  const markerLocations = ['socal', 'berkeley', 'cameroon', 'chad', 'atlanta', 'kinshasa'];
 
   const markerCoords = {
     socal:    SOCAL,
     berkeley: locations.berkeley,
     cameroon: locations.cameroon,
     chad:     locations.chad,
-    atlanta:  locations.atlanta
+    atlanta:  locations.atlanta,
+    kinshasa: locations.kinshasa
   };
 
   markerLocations.forEach(key => {
@@ -157,12 +159,12 @@
 
   // Map chapter keys to their marker key
   function chapterToMarker(chapterKey) {
-    if (chapterKey === 'sandiego' || chapterKey === 'losangeles') return 'socal';
+    if (chapterKey === 'sandiego' || chapterKey === 'losangeles' || chapterKey === 'losangeles2') return 'socal';
     return chapterKey;
   }
 
   // --- JOURNEY PATH (arc lines between markers) ---
-  const pathOrder = ['socal', 'berkeley', 'cameroon', 'chad', 'atlanta', 'socal'];
+  const pathOrder = ['socal', 'berkeley', 'cameroon', 'chad', 'atlanta', 'socal', 'kinshasa', 'socal'];
   const pathPoints = pathOrder.map(key => {
     const loc = markerCoords[key] || SOCAL;
     return latLonToVec3(loc.lat, loc.lon, RADIUS * 1.003);
@@ -179,7 +181,7 @@
 
     const angularDist = startPt.angleTo(endPt);
     // Height multiplier: short arcs stay low, long arcs soar high
-    const heightMul = RADIUS * (1.2 + angularDist * 1.2);
+    const heightMul = RADIUS * (1.15 + angularDist * 0.7);
 
     // Place two control points at 1/3 and 2/3 along the great circle, pushed outward
     const cp1 = new THREE.Vector3().lerpVectors(startPt, endPt, 0.33);
