@@ -205,53 +205,57 @@
     return delta;
   }
 
-  // --- SCROLL OBSERVER ---
-  const chapters = document.querySelectorAll('.chapter');
-  let activeChapter = 'intro';
+  // --- SCROLL-DRIVEN CHAPTER ACTIVATION ---
+  // Each chapter locks in when its top crosses 30% from the top of the viewport,
+  // and stays locked until the NEXT chapter's top crosses that same line.
+  const chapterEls = Array.from(document.querySelectorAll('.chapter'));
 
-  const observer = new IntersectionObserver((entries) => {
-    let bestEntry = null;
-    let bestRatio = 0;
-    entries.forEach(entry => {
-      if (entry.isIntersecting && entry.intersectionRatio > bestRatio) {
-        bestRatio = entry.intersectionRatio;
-        bestEntry = entry;
-      }
-    });
+  function setActiveChapter(locKey) {
+    if (locKey === activeChapter || !locations[locKey]) return;
+    activeChapter = locKey;
+    const loc = locations[locKey];
+    targetSpherical = { lat: loc.lat, lon: loc.lon, dist: loc.dist };
 
-    if (bestEntry) {
-      const locKey = bestEntry.target.dataset.location;
-      if (locKey && locKey !== activeChapter && locations[locKey]) {
-        activeChapter = locKey;
-        const loc = locations[locKey];
-        targetSpherical = { lat: loc.lat, lon: loc.lon, dist: loc.dist };
-
-        // Update label
-        if (labelEl) {
-          if (loc.label) {
-            labelEl.textContent = loc.label;
-            labelEl.classList.add('visible');
-          } else {
-            labelEl.classList.remove('visible');
-          }
-        }
-
-        // Highlight active marker
-        markerLocations.forEach(key => {
-          const m = markerMeshes[key];
-          const isActive = key === locKey;
-          m.ring.material.opacity = isActive ? 1 : 0.4;
-          m.dot.material.opacity = isActive ? 1 : 0.5;
-          m.ring.scale.setScalar(isActive ? 1.8 : 1);
-        });
+    // Update label
+    if (labelEl) {
+      if (loc.label) {
+        labelEl.textContent = loc.label;
+        labelEl.classList.add('visible');
+      } else {
+        labelEl.classList.remove('visible');
       }
     }
-  }, {
-    threshold: [0, 0.1, 0.2, 0.3, 0.4, 0.5],
-    rootMargin: '-20% 0px -20% 0px'
-  });
 
-  chapters.forEach(ch => observer.observe(ch));
+    // Highlight active marker
+    markerLocations.forEach(key => {
+      const m = markerMeshes[key];
+      const isActive = key === locKey;
+      m.ring.material.opacity = isActive ? 1 : 0.4;
+      m.dot.material.opacity = isActive ? 1 : 0.5;
+      m.ring.scale.setScalar(isActive ? 1.8 : 1);
+    });
+  }
+
+  let activeChapter = 'intro';
+  const TRIGGER_LINE = 0.3; // 30% from top of viewport
+
+  function onScroll() {
+    const triggerY = window.innerHeight * TRIGGER_LINE;
+
+    // Walk chapters in reverse; the first one whose top is above the trigger line wins
+    for (let i = chapterEls.length - 1; i >= 0; i--) {
+      const rect = chapterEls[i].getBoundingClientRect();
+      if (rect.top <= triggerY) {
+        setActiveChapter(chapterEls[i].dataset.location);
+        return;
+      }
+    }
+    // If none matched (scrolled above everything), use the first chapter
+    setActiveChapter(chapterEls[0].dataset.location);
+  }
+
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll(); // set initial state
 
   // --- ANIMATION LOOP ---
   const lerpSpeed = 0.025;
