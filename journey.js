@@ -255,7 +255,6 @@
 
   // --- ANIMATION LOOP ---
   const lerpSpeed = 0.025;
-  let idleRotation = 0;
 
   function animate() {
     requestAnimationFrame(animate);
@@ -269,17 +268,15 @@
     while (currentSpherical.lon > 180) currentSpherical.lon -= 360;
     while (currentSpherical.lon < -180) currentSpherical.lon += 360;
 
+    // Subtle idle drift when zoomed out (applied via camera lon, not earth rotation)
+    if (activeChapter === 'intro' || activeChapter === 'outro') {
+      targetSpherical.lon += 0.04;
+    }
+
     // Convert to camera position
     const camPos = latLonToCamera(currentSpherical.lat, currentSpherical.lon, currentSpherical.dist);
     camera.position.copy(camPos);
     camera.lookAt(0, 0, 0);
-
-    // Subtle idle rotation when zoomed out
-    if (activeChapter === 'intro' || activeChapter === 'outro') {
-      idleRotation += 0.0008;
-      earth.rotation.y = idleRotation;
-      markerGroup.rotation.y = idleRotation;
-    }
 
     renderer.render(scene, camera);
   }
