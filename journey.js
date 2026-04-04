@@ -156,10 +156,14 @@
     const start = pathPoints[i];
     const end = pathPoints[i + 1];
     const mid = new THREE.Vector3().addVectors(start, end).multiplyScalar(0.5);
-    mid.normalize().multiplyScalar(RADIUS * 1.15);
+
+    // Push the arc higher for longer distances so it never cuts through the globe
+    const angularDist = start.angleTo(end);
+    const arcHeight = RADIUS * (1.15 + angularDist * 0.5);
+    mid.normalize().multiplyScalar(arcHeight);
 
     const curve = new THREE.QuadraticBezierCurve3(start, mid, end);
-    const tubeGeo = new THREE.TubeGeometry(curve, 48, 0.02, 8, false);
+    const tubeGeo = new THREE.TubeGeometry(curve, 64, 0.02, 8, false);
     const tubeMat = new THREE.MeshBasicMaterial({
       color: 0xe8a820, transparent: true, opacity: 0.45
     });
