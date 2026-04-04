@@ -25,6 +25,22 @@
   resize();
   window.addEventListener('resize', resize);
 
+  // --- STARFIELD ---
+  const starCount = 1500;
+  const starGeo = new THREE.BufferGeometry();
+  const starPositions = new Float32Array(starCount * 3);
+  for (let i = 0; i < starCount; i++) {
+    const r = 80 + Math.random() * 120;
+    const theta = Math.random() * Math.PI * 2;
+    const phi = Math.acos(2 * Math.random() - 1);
+    starPositions[i * 3]     = r * Math.sin(phi) * Math.cos(theta);
+    starPositions[i * 3 + 1] = r * Math.sin(phi) * Math.sin(theta);
+    starPositions[i * 3 + 2] = r * Math.cos(phi);
+  }
+  starGeo.setAttribute('position', new THREE.BufferAttribute(starPositions, 3));
+  const starMat = new THREE.PointsMaterial({ color: 0xffffff, size: 0.15, sizeAttenuation: true });
+  scene.add(new THREE.Points(starGeo, starMat));
+
   // --- LIGHTING ---
   scene.add(new THREE.AmbientLight(0xffffff, 0.55));
   const sun = new THREE.DirectionalLight(0xffffff, 0.9);
@@ -152,20 +168,29 @@
     return latLonToVec3(loc.lat, loc.lon, RADIUS * 1.003);
   });
 
-  for (let i = 0; i < pathPoints.length - 1; i++) {
-    const start = pathPoints[i];
-    const end = pathPoints[i + 1];
-    const mid = new THREE.Vector3().addVectors(start, end).multiplyScalar(0.5);
+  // Build arcs using CubicBezier with two control points for proper high arcs
+  const pathLatLons = pathOrder.map(key => markerCoords[key] || SOCAL);
 
-    // Push the arc higher for longer distances so it never cuts through the globe
-    const angularDist = start.angleTo(end);
-    const arcHeight = RADIUS * (1.15 + angularDist * 0.5);
-    mid.normalize().multiplyScalar(arcHeight);
+  for (let i = 0; i < pathOrder.length - 1; i++) {
+    const startLL = pathLatLons[i];
+    const endLL = pathLatLons[i + 1];
+    const startPt = pathPoints[i];
+    const endPt = pathPoints[i + 1];
 
-    const curve = new THREE.QuadraticBezierCurve3(start, mid, end);
+    const angularDist = startPt.angleTo(endPt);
+    // Height multiplier: short arcs stay low, long arcs soar high
+    const heightMul = RADIUS * (1.2 + angularDist * 1.2);
+
+    // Place two control points at 1/3 and 2/3 along the great circle, pushed outward
+    const cp1 = new THREE.Vector3().lerpVectors(startPt, endPt, 0.33);
+    cp1.normalize().multiplyScalar(heightMul);
+    const cp2 = new THREE.Vector3().lerpVectors(startPt, endPt, 0.66);
+    cp2.normalize().multiplyScalar(heightMul);
+
+    const curve = new THREE.CubicBezierCurve3(startPt, cp1, cp2, endPt);
     const tubeGeo = new THREE.TubeGeometry(curve, 64, 0.02, 8, false);
     const tubeMat = new THREE.MeshBasicMaterial({
-      color: 0xe8a820, transparent: true, opacity: 0.45
+      color: 0xe8a820, transparent: true, opacity: 0.5
     });
     markerGroup.add(new THREE.Mesh(tubeGeo, tubeMat));
   }

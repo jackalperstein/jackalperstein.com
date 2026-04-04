@@ -1037,7 +1037,7 @@ footer {
   top: 0;
   width: 50%;
   height: 100vh;
-  background: linear-gradient(135deg, #0c2340 0%, #122d4d 50%, #0f2137 100%);
+  background: #000000;
   display: flex;
   align-items: center;
   justify-content: center;
