@@ -35,14 +35,12 @@
   const RADIUS = 5;
   const earthGeo = new THREE.SphereGeometry(RADIUS, 64, 64);
 
-  // Load satellite texture
   const loader = new THREE.TextureLoader();
   const earthTex = loader.load(
     'https://cdn.jsdelivr.net/npm/three-globe/example/img/earth-blue-marble.jpg',
-    function () { /* loaded */ },
+    function () {},
     undefined,
     function () {
-      // Fallback: solid blue sphere if texture fails
       earth.material = new THREE.MeshPhongMaterial({ color: 0x1a5f9e });
     }
   );
@@ -86,47 +84,51 @@
   scene.add(new THREE.Mesh(atmosGeo, atmosMat));
 
   // --- LOCATION DATA ---
+  // San Diego and Los Angeles share a single "Southern California" marker
+  const SOCAL = { lat: 33.6, lon: -117.7, dist: 11 };
+
   const locations = {
     intro:      { lat: 20, lon: -40,   dist: 22, label: '' },
-    sandiego:   { lat: 33.1, lon: -117.2, dist: 11, label: 'North San Diego County' },
+    sandiego:   { lat: SOCAL.lat, lon: SOCAL.lon, dist: SOCAL.dist, label: 'Southern California' },
     berkeley:   { lat: 37.87, lon: -122.26, dist: 11, label: 'UC Berkeley' },
     cameroon:   { lat: 4.0, lon: 14.0,  dist: 10, label: 'East Region, Cameroon' },
     chad:       { lat: 9.0, lon: 18.5,  dist: 10, label: 'Moyen-Chari, Chad' },
     atlanta:    { lat: 33.75, lon: -84.39, dist: 11, label: 'Atlanta, Georgia' },
-    losangeles: { lat: 34.05, lon: -118.24, dist: 11, label: 'Los Angeles, California' },
+    losangeles: { lat: SOCAL.lat, lon: SOCAL.lon, dist: SOCAL.dist, label: 'Southern California' },
     outro:      { lat: 20, lon: -40,   dist: 22, label: '' }
   };
 
   // --- MARKERS ---
+  // Only 4 unique dots: Southern California, Berkeley, Cameroon, Chad, Atlanta
   const markerGroup = new THREE.Group();
   scene.add(markerGroup);
 
   const markerMeshes = {};
-  const markerLocations = ['sandiego', 'berkeley', 'cameroon', 'chad', 'atlanta', 'losangeles'];
+  const markerLocations = ['socal', 'berkeley', 'cameroon', 'chad', 'atlanta'];
+
+  const markerCoords = {
+    socal:    SOCAL,
+    berkeley: locations.berkeley,
+    cameroon: locations.cameroon,
+    chad:     locations.chad,
+    atlanta:  locations.atlanta
+  };
 
   markerLocations.forEach(key => {
-    const loc = locations[key];
+    const loc = markerCoords[key];
     const pos = latLonToVec3(loc.lat, loc.lon, RADIUS * 1.005);
 
-    // Outer ring
     const ringGeo = new THREE.RingGeometry(0.06, 0.1, 24);
     const ringMat = new THREE.MeshBasicMaterial({
-      color: 0xe8a820,
-      side: THREE.DoubleSide,
-      transparent: true,
-      opacity: 0.7
+      color: 0xe8a820, side: THREE.DoubleSide, transparent: true, opacity: 0.7
     });
     const ring = new THREE.Mesh(ringGeo, ringMat);
     ring.position.copy(pos);
     ring.lookAt(0, 0, 0);
 
-    // Center dot
     const dotGeo = new THREE.CircleGeometry(0.05, 16);
     const dotMat = new THREE.MeshBasicMaterial({
-      color: 0xe8a820,
-      side: THREE.DoubleSide,
-      transparent: true,
-      opacity: 0.9
+      color: 0xe8a820, side: THREE.DoubleSide, transparent: true, opacity: 0.9
     });
     const dot = new THREE.Mesh(dotGeo, dotMat);
     dot.position.copy(pos);
@@ -137,9 +139,16 @@
     markerMeshes[key] = { ring, dot };
   });
 
-  // --- JOURNEY PATH (arc lines between locations) ---
-  const pathPoints = markerLocations.map(key => {
-    const loc = locations[key];
+  // Map chapter keys to their marker key
+  function chapterToMarker(chapterKey) {
+    if (chapterKey === 'sandiego' || chapterKey === 'losangeles') return 'socal';
+    return chapterKey;
+  }
+
+  // --- JOURNEY PATH (arc lines between markers) ---
+  const pathOrder = ['socal', 'berkeley', 'cameroon', 'chad', 'atlanta', 'socal'];
+  const pathPoints = pathOrder.map(key => {
+    const loc = markerCoords[key] || SOCAL;
     return latLonToVec3(loc.lat, loc.lon, RADIUS * 1.003);
   });
 
@@ -153,9 +162,7 @@
     const points = curve.getPoints(48);
     const lineGeo = new THREE.BufferGeometry().setFromPoints(points);
     const lineMat = new THREE.LineBasicMaterial({
-      color: 0xe8a820,
-      transparent: true,
-      opacity: 0.25
+      color: 0xe8a820, transparent: true, opacity: 0.25
     });
     markerGroup.add(new THREE.Line(lineGeo, lineMat));
   }
@@ -182,8 +189,6 @@
   }
 
   // --- CAMERA STATE (spherical interpolation) ---
-  // Track camera as lat/lon/dist and interpolate in spherical space
-  // so the camera follows the globe surface instead of cutting through it
   let currentSpherical = {
     lat: locations.intro.lat,
     lon: locations.intro.lon,
@@ -197,7 +202,6 @@
 
   const labelEl = document.getElementById('globe-label');
 
-  // Shortest-path longitude delta (handles wraparound)
   function shortestLonDelta(from, to) {
     let delta = to - from;
     while (delta > 180) delta -= 360;
@@ -206,9 +210,9 @@
   }
 
   // --- SCROLL-DRIVEN CHAPTER ACTIVATION ---
-  // Each chapter locks in when its top crosses 30% from the top of the viewport,
-  // and stays locked until the NEXT chapter's top crosses that same line.
   const chapterEls = Array.from(document.querySelectorAll('.chapter'));
+
+  let activeChapter = 'intro';
 
   function setActiveChapter(locKey) {
     if (locKey === activeChapter || !locations[locKey]) return;
@@ -216,7 +220,6 @@
     const loc = locations[locKey];
     targetSpherical = { lat: loc.lat, lon: loc.lon, dist: loc.dist };
 
-    // Update label
     if (labelEl) {
       if (loc.label) {
         labelEl.textContent = loc.label;
@@ -226,23 +229,20 @@
       }
     }
 
-    // Highlight active marker
+    const activeMarker = chapterToMarker(locKey);
     markerLocations.forEach(key => {
       const m = markerMeshes[key];
-      const isActive = key === locKey;
+      const isActive = key === activeMarker;
       m.ring.material.opacity = isActive ? 1 : 0.4;
       m.dot.material.opacity = isActive ? 1 : 0.5;
       m.ring.scale.setScalar(isActive ? 1.8 : 1);
     });
   }
 
-  let activeChapter = 'intro';
-  const TRIGGER_LINE = 0.3; // 30% from top of viewport
+  const TRIGGER_LINE = 0.3;
 
   function onScroll() {
     const triggerY = window.innerHeight * TRIGGER_LINE;
-
-    // Walk chapters in reverse; the first one whose top is above the trigger line wins
     for (let i = chapterEls.length - 1; i >= 0; i--) {
       const rect = chapterEls[i].getBoundingClientRect();
       if (rect.top <= triggerY) {
@@ -250,41 +250,45 @@
         return;
       }
     }
-    // If none matched (scrolled above everything), use the first chapter
     setActiveChapter(chapterEls[0].dataset.location);
   }
 
   window.addEventListener('scroll', onScroll, { passive: true });
-  onScroll(); // set initial state
+  onScroll();
 
   // --- ANIMATION LOOP ---
-  const lerpSpeed = 0.025;
+  // Use time-based smoothing for frame-rate-independent, stutter-free transitions
+  const SMOOTH_TIME = 1.8; // seconds to ~95% of target
+  let lastTime = performance.now();
 
-  function animate() {
+  function animate(now) {
     requestAnimationFrame(animate);
 
-    // Interpolate in spherical coordinates (smooth globe-surface path)
-    currentSpherical.lat += (targetSpherical.lat - currentSpherical.lat) * lerpSpeed;
-    currentSpherical.lon += shortestLonDelta(currentSpherical.lon, targetSpherical.lon) * lerpSpeed;
-    currentSpherical.dist += (targetSpherical.dist - currentSpherical.dist) * lerpSpeed;
+    const dt = Math.min((now - lastTime) / 1000, 0.1); // cap delta to avoid jumps
+    lastTime = now;
 
-    // Normalize longitude
+    // Exponential smoothing factor (frame-rate independent)
+    const factor = 1 - Math.exp(-3 / SMOOTH_TIME * dt);
+
+    currentSpherical.lat += (targetSpherical.lat - currentSpherical.lat) * factor;
+    currentSpherical.lon += shortestLonDelta(currentSpherical.lon, targetSpherical.lon) * factor;
+    currentSpherical.dist += (targetSpherical.dist - currentSpherical.dist) * factor;
+
     while (currentSpherical.lon > 180) currentSpherical.lon -= 360;
     while (currentSpherical.lon < -180) currentSpherical.lon += 360;
 
-    // Subtle idle drift when zoomed out (applied via camera lon, not earth rotation)
+    // Subtle idle drift when zoomed out
     if (activeChapter === 'intro' || activeChapter === 'outro') {
       targetSpherical.lon += 0.04;
     }
 
-    // Convert to camera position
     const camPos = latLonToCamera(currentSpherical.lat, currentSpherical.lon, currentSpherical.dist);
     camera.position.copy(camPos);
     camera.lookAt(0, 0, 0);
 
     renderer.render(scene, camera);
   }
-  animate();
+  requestAnimationFrame(animate);
 
   // --- CHAPTER CARD FADE-IN ---
   const cardObserver = new IntersectionObserver((entries) => {
