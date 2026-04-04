@@ -33,7 +33,7 @@
 
   // --- EARTH ---
   const RADIUS = 5;
-  const earthGeo = new THREE.SphereGeometry(RADIUS, 64, 64);
+  const earthGeo = new THREE.SphereGeometry(RADIUS, 128, 128);
 
   const loader = new THREE.TextureLoader();
   const earthTex = loader.load(
@@ -159,12 +159,11 @@
     mid.normalize().multiplyScalar(RADIUS * 1.15);
 
     const curve = new THREE.QuadraticBezierCurve3(start, mid, end);
-    const points = curve.getPoints(48);
-    const lineGeo = new THREE.BufferGeometry().setFromPoints(points);
-    const lineMat = new THREE.LineBasicMaterial({
-      color: 0xe8a820, transparent: true, opacity: 0.25
+    const tubeGeo = new THREE.TubeGeometry(curve, 48, 0.02, 8, false);
+    const tubeMat = new THREE.MeshBasicMaterial({
+      color: 0xe8a820, transparent: true, opacity: 0.45
     });
-    markerGroup.add(new THREE.Line(lineGeo, lineMat));
+    markerGroup.add(new THREE.Mesh(tubeGeo, tubeMat));
   }
 
   // --- HELPERS ---
