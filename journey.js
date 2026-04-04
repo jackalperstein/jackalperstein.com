@@ -106,6 +106,7 @@
   const locations = {
     intro:      { lat: 20, lon: -40,   dist: 22, label: '' },
     sandiego:   { lat: SOCAL.lat, lon: SOCAL.lon, dist: SOCAL.dist, label: 'Southern California' },
+    kenya:      { lat: -0.42, lon: 36.95, dist: 10, label: 'Nyeri, Kenya' },
     berkeley:   { lat: 37.87, lon: -122.26, dist: 11, label: 'UC Berkeley' },
     cameroon:   { lat: 4.0, lon: 14.0,  dist: 10, label: 'East Region, Cameroon' },
     chad:       { lat: 9.0, lon: 18.5,  dist: 10, label: 'Moyen-Chari, Chad' },
@@ -121,10 +122,11 @@
   scene.add(markerGroup);
 
   const markerMeshes = {};
-  const markerLocations = ['socal', 'berkeley', 'cameroon', 'chad', 'atlanta', 'kinshasa'];
+  const markerLocations = ['socal', 'kenya', 'berkeley', 'cameroon', 'chad', 'atlanta', 'kinshasa'];
 
   const markerCoords = {
     socal:    SOCAL,
+    kenya:    locations.kenya,
     berkeley: locations.berkeley,
     cameroon: locations.cameroon,
     chad:     locations.chad,
@@ -164,7 +166,7 @@
   }
 
   // --- JOURNEY PATH (arc lines between markers) ---
-  const pathOrder = ['socal', 'berkeley', 'cameroon', 'chad', 'atlanta', 'socal', 'kinshasa', 'socal'];
+  const pathOrder = ['socal', 'kenya', 'socal', 'berkeley', 'cameroon', 'chad', 'atlanta', 'socal', 'kinshasa', 'socal'];
   const pathPoints = pathOrder.map(key => {
     const loc = markerCoords[key] || SOCAL;
     return latLonToVec3(loc.lat, loc.lon, RADIUS * 1.003);
