@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Journey | Jack Alperstein</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <nav id="nav">
+    <a href="index.html" class="nav-logo">
+      Jack Alperstein
+      <span class="logo-sub">Public Health Data Scientist</span>
+    </a>
+    <ul class="nav-links">
+      <li><a href="about.html" class="nav-link">About</a></li>
+      <li><a href="journey.html" class="nav-link active">Journey</a></li>
+      <li><a href="projects.html" class="nav-link">Projects</a></li>
+      <li><a href="experience.html" class="nav-link">Experience</a></li>
+      <li><a href="contact.html" class="nav-link">Contact</a></li>
+    </ul>
+  </nav>
+
+  <!-- JOURNEY CONTAINER -->
+  <div class="journey-wrapper">
+
+    <!-- FIXED GLOBE -->
+    <div class="globe-container" id="globe-container">
+      <canvas id="globe-canvas"></canvas>
+      <div class="globe-location-label" id="globe-label"></div>
+    </div>
+
+    <!-- SCROLLING CHAPTERS -->
+    <div class="journey-chapters">
+
+      <!-- INTRO -->
+      <div class="chapter chapter-intro" data-location="intro">
+        <div class="chapter-card">
+          <h1 class="journey-title">My Journey</h1>
+          <p class="journey-subtitle">From Southern California to Central Africa and back &mdash; a path shaped by curiosity, service, and the belief that data can make communities healthier.</p>
+          <div class="scroll-hint">Scroll to begin &darr;</div>
+        </div>
+      </div>
+
+      <!-- 1: NORTH SAN DIEGO COUNTY -->
+      <div class="chapter" data-location="sandiego">
+        <div class="chapter-card">
+          <div class="chapter-date">1994 &ndash; 2013</div>
+          <h2 class="chapter-heading">Growing Up</h2>
+          <h3 class="chapter-place">North San Diego County, California</h3>
+          <p class="chapter-text">I grew up in the sun-soaked hills of North County San Diego, where the outdoors was a second home. Between the coast and the chaparral, I developed an early appreciation for the environment and the communities shaped by it. Those formative years planted the seeds for everything that followed &mdash; a curiosity about how the world works and a drive to contribute something meaningful.</p>
+        </div>
+        <div class="chapter-photos">
+          <div class="photo-frame"><div class="photo-placeholder"><span>Photo</span></div><div class="photo-caption">Add caption</div></div>
+          <div class="photo-frame"><div class="photo-placeholder"><span>Photo</span></div><div class="photo-caption">Add caption</div></div>
+          <div class="photo-frame"><div class="photo-placeholder"><span>Photo</span></div><div class="photo-caption">Add caption</div></div>
+        </div>
+      </div>
+
+      <!-- 2: UC BERKELEY -->
+      <div class="chapter" data-location="berkeley">
+        <div class="chapter-card">
+          <div class="chapter-date">2013 &ndash; 2017</div>
+          <h2 class="chapter-heading">Undergrad</h2>
+          <h3 class="chapter-place">UC Berkeley</h3>
+          <p class="chapter-text">Berkeley opened my eyes to global health. Surrounded by some of the sharpest minds in the world, I discovered that the intersection of science, policy, and community action was where I wanted to build my career. The energy of the campus and the Bay Area taught me to think big, question assumptions, and pursue work that matters beyond the classroom.</p>
+        </div>
+        <div class="chapter-photos">
+          <div class="photo-frame"><div class="photo-placeholder"><span>Photo</span></div><div class="photo-caption">Add caption</div></div>
+          <div class="photo-frame"><div class="photo-placeholder"><span>Photo</span></div><div class="photo-caption">Add caption</div></div>
+          <div class="photo-frame"><div class="photo-placeholder"><span>Photo</span></div><div class="photo-caption">Add caption</div></div>
+        </div>
+      </div>
+
+      <!-- 3: CAMEROON -->
+      <div class="chapter" data-location="cameroon">
+        <div class="chapter-card">
+          <div class="chapter-date">2017 &ndash; 2020</div>
+          <h2 class="chapter-heading">Peace Corps</h2>
+          <h3 class="chapter-place">East Region, Cameroon</h3>
+          <p class="chapter-text">Cameroon changed everything. As a Peace Corps Volunteer in the East Region, I lived in a small community, learned to speak French fluently, and threw myself into public health work at the grassroots level. I organized an HIV testing campaign that reached 534 people and linked 27 to treatment. I built PowerBI dashboards for country-wide program evaluation. But more than the metrics, Cameroon taught me resilience, humility, and the kind of problem-solving you can only learn when the power goes out and you still have a deadline.</p>
+        </div>
+        <div class="chapter-gallery">
+          <div class="photo-frame"><div class="photo-placeholder"><span>Photo</span></div><div class="photo-caption">Add caption</div></div>
+          <div class="photo-frame"><div class="photo-placeholder"><span>Photo</span></div><div class="photo-caption">Add caption</div></div>
+          <div class="photo-frame"><div class="photo-placeholder"><span>Photo</span></div><div class="photo-caption">Add caption</div></div>
+          <div class="photo-frame"><div class="photo-placeholder"><span>Photo</span></div><div class="photo-caption">Add caption</div></div>
+          <div class="photo-frame"><div class="photo-placeholder"><span>Photo</span></div><div class="photo-caption">Add caption</div></div>
+          <div class="photo-frame"><div class="photo-placeholder"><span>Photo</span></div><div class="photo-caption">Add caption</div></div>
+          <div class="photo-frame"><div class="photo-placeholder"><span>Photo</span></div><div class="photo-caption">Add caption</div></div>
+          <div class="photo-frame"><div class="photo-placeholder"><span>Photo</span></div><div class="photo-caption">Add caption</div></div>
+        </div>
+      </div>
+
+      <!-- 4: CHAD -->
+      <div class="chapter" data-location="chad">
+        <div class="chapter-card">
+          <div class="chapter-date">2020 &ndash; 2022</div>
+          <h2 class="chapter-heading">The Carter Center</h2>
+          <h3 class="chapter-place">Moyen-Chari, Chad</h3>
+          <p class="chapter-text">From Cameroon I moved to Chad to work with The Carter Center's Guinea Worm Eradication Program &mdash; one of the most ambitious disease eradication efforts in history. I managed a field team of 54 staff and 230 community volunteers across 500 square miles of rural southern Chad. I oversaw a $180,000 annual budget, produced epidemiological reports, and learned what it takes to coordinate public health logistics in some of the most challenging conditions on earth. The work was hard, the stakes were real, and the mission was clear.</p>
+        </div>
+        <div class="chapter-gallery">
+          <div class="photo-frame"><div class="photo-placeholder"><span>Photo</span></div><div class="photo-caption">Add caption</div></div>
+          <div class="photo-frame"><div class="photo-placeholder"><span>Photo</span></div><div class="photo-caption">Add caption</div></div>
+          <div class="photo-frame"><div class="photo-placeholder"><span>Photo</span></div><div class="photo-caption">Add caption</div></div>
+          <div class="photo-frame"><div class="photo-placeholder"><span>Photo</span></div><div class="photo-caption">Add caption</div></div>
+          <div class="photo-frame"><div class="photo-placeholder"><span>Photo</span></div><div class="photo-caption">Add caption</div></div>
+          <div class="photo-frame"><div class="photo-placeholder"><span>Photo</span></div><div class="photo-caption">Add caption</div></div>
+          <div class="photo-frame"><div class="photo-placeholder"><span>Photo</span></div><div class="photo-caption">Add caption</div></div>
+          <div class="photo-frame"><div class="photo-placeholder"><span>Photo</span></div><div class="photo-caption">Add caption</div></div>
+        </div>
+      </div>
+
+      <!-- 5: ATLANTA -->
+      <div class="chapter" data-location="atlanta">
+        <div class="chapter-card">
+          <div class="chapter-date">2022 &ndash; 2024</div>
+          <h2 class="chapter-heading">Graduate School</h2>
+          <h3 class="chapter-place">Atlanta, Georgia</h3>
+          <p class="chapter-text">I came to Emory's Rollins School of Public Health to sharpen the analytical skills I'd been building in the field. My MPH in Environmental Health gave me the statistical toolkit to match my field experience &mdash; R, SAS, epidemiological study design, and machine learning. For my thesis, I analyzed 60 million patient records to study heat-related ER visits in Southern California, introducing primary language spoken as a novel social determinant of health. Atlanta also brought me to the CDC Prevention Epicenters and deepened my work with The Carter Center.</p>
+        </div>
+        <div class="chapter-photos">
+          <div class="photo-frame"><div class="photo-placeholder"><span>Photo</span></div><div class="photo-caption">Add caption</div></div>
+          <div class="photo-frame"><div class="photo-placeholder"><span>Photo</span></div><div class="photo-caption">Add caption</div></div>
+          <div class="photo-frame"><div class="photo-placeholder"><span>Photo</span></div><div class="photo-caption">Add caption</div></div>
+        </div>
+      </div>
+
+      <!-- 6: LOS ANGELES -->
+      <div class="chapter" data-location="losangeles">
+        <div class="chapter-card">
+          <div class="chapter-date">2024 &ndash; Present</div>
+          <h2 class="chapter-heading">The Current Chapter</h2>
+          <h3 class="chapter-place">Los Angeles, California</h3>
+          <p class="chapter-text">Back in California, I'm now a Research Coordinator at the UCLA Fielding School of Public Health in the Rimoin Lab, managing epidemiology research projects from funding inception to final data presentation. I coordinate data analysis across R, Python, and GIS, while supporting the Global Health Center's broader mission. It feels like a homecoming &mdash; bringing everything I've learned across four countries and seven years of global health back to where it all started.</p>
+        </div>
+        <div class="chapter-photos">
+          <div class="photo-frame"><div class="photo-placeholder"><span>Photo</span></div><div class="photo-caption">Add caption</div></div>
+          <div class="photo-frame"><div class="photo-placeholder"><span>Photo</span></div><div class="photo-caption">Add caption</div></div>
+          <div class="photo-frame"><div class="photo-placeholder"><span>Photo</span></div><div class="photo-caption">Add caption</div></div>
+        </div>
+      </div>
+
+      <!-- OUTRO -->
+      <div class="chapter chapter-outro" data-location="outro">
+        <div class="chapter-card">
+          <h2 class="chapter-heading">What's Next</h2>
+          <p class="chapter-text">The journey continues. I'm looking for opportunities to apply data science to the public health challenges that matter most &mdash; environmental health, health equity, and global disease surveillance.</p>
+          <div class="outro-ctas">
+            <a href="projects.html" class="btn-primary">See My Work</a>
+            <a href="contact.html" class="btn-ghost-dark">Get in Touch</a>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <footer>
+    <div class="footer-inner">
+      <span>&copy; 2025 Jack Alperstein</span>
+      <span>Built with data in mind</span>
+    </div>
+  </footer>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="journey.js"></script>
+</body>
+</html>
