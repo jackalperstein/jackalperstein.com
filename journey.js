@@ -221,10 +221,10 @@
     const curve = new THREE.CubicBezierCurve3(startPt, cp1, cp2, endPt);
     const tubeGeo = new THREE.TubeGeometry(curve, 64, 0.02, 8, false);
     const tubeMat = new THREE.MeshBasicMaterial({
-      color: 0xe8a820, transparent: true, opacity: 0  // hidden initially
+      color: 0xe8a820, transparent: true, opacity: 0.5
     });
     const mesh = new THREE.Mesh(tubeGeo, tubeMat);
-    markerGroup.add(mesh);
+    // Do NOT add to scene yet — added on reveal to avoid clipping markers
     arcMeshes.push(mesh);
   }
 
@@ -308,7 +308,7 @@
       const reveals = chapterRevealMap[locKey];
       if (reveals) {
         reveals.arcs.forEach(idx => {
-          arcMeshes[idx].material.opacity = 0.5;
+          markerGroup.add(arcMeshes[idx]); // add to scene now
         });
         reveals.markers.forEach(markerKey => {
           markerMeshes[markerKey].ring.material.opacity = 0.7;
