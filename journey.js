@@ -38,7 +38,7 @@
     starPositions[i * 3 + 2] = r * Math.cos(phi);
   }
   starGeo.setAttribute('position', new THREE.BufferAttribute(starPositions, 3));
-  const starMat = new THREE.PointsMaterial({ color: 0xffffff, size: 0.15, sizeAttenuation: true });
+  const starMat = new THREE.PointsMaterial({ color: 0xffffff, size: 0.28, sizeAttenuation: true, opacity: 0.9, transparent: true });
   scene.add(new THREE.Points(starGeo, starMat));
 
   // --- LIGHTING ---
