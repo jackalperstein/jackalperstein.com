@@ -53,24 +53,24 @@
 
   const loader = new THREE.TextureLoader();
   const earthTex = loader.load(
-    'https://cdn.jsdelivr.net/npm/three-globe/example/img/earth-blue-marble.jpg',
-    function () {},
+    'assets/earth-texture.jpg',
+    function (tex) {
+      // Enable anisotropic filtering for sharper zoomed-in views
+      tex.anisotropy = renderer.capabilities.getMaxAnisotropy();
+      tex.minFilter = THREE.LinearMipmapLinearFilter;
+      tex.magFilter = THREE.LinearFilter;
+      tex.generateMipmaps = true;
+    },
     undefined,
     function () {
       earth.material = new THREE.MeshPhongMaterial({ color: 0x1a5f9e });
     }
   );
 
-  const bumpTex = loader.load(
-    'https://cdn.jsdelivr.net/npm/three-globe/example/img/earth-topology.png'
-  );
-
   const earthMat = new THREE.MeshPhongMaterial({
     map: earthTex,
-    bumpMap: bumpTex,
-    bumpScale: 0.3,
-    specular: new THREE.Color(0x333333),
-    shininess: 15
+    specular: new THREE.Color(0x222222),
+    shininess: 12
   });
 
   const earth = new THREE.Mesh(earthGeo, earthMat);
