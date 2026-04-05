@@ -166,26 +166,53 @@
   }
 
   // --- JOURNEY PATH (arc lines between markers) ---
+  // pathOrder defines the travel sequence. Each arc [i] reveals when the chapter at
+  // arcRevealAtChapter[i] becomes active.
   const pathOrder = ['socal', 'kenya', 'socal', 'berkeley', 'cameroon', 'chad', 'atlanta', 'socal', 'kinshasa', 'socal'];
   const pathPoints = pathOrder.map(key => {
     const loc = markerCoords[key] || SOCAL;
     return latLonToVec3(loc.lat, loc.lon, RADIUS * 1.003);
   });
 
-  // Build arcs using CubicBezier with two control points for proper high arcs
-  const pathLatLons = pathOrder.map(key => markerCoords[key] || SOCAL);
+  // Which chapter key triggers each arc to appear (arc i connects pathOrder[i] → pathOrder[i+1])
+  const arcRevealAtChapter = [
+    'kenya',       // 0: socal → kenya
+    'berkeley',    // 1: kenya → socal
+    'berkeley',    // 2: socal → berkeley
+    'cameroon',    // 3: berkeley → cameroon
+    'chad',        // 4: cameroon → chad
+    'atlanta',     // 5: chad → atlanta
+    'losangeles',  // 6: atlanta → socal
+    'kinshasa',    // 7: socal → kinshasa
+    'losangeles2', // 8: kinshasa → socal
+  ];
+
+  // Also hide each marker until its chapter is reached
+  const markerRevealAtChapter = {
+    socal:    'sandiego',
+    kenya:    'kenya',
+    berkeley: 'berkeley',
+    cameroon: 'cameroon',
+    chad:     'chad',
+    atlanta:  'atlanta',
+    kinshasa: 'kinshasa',
+  };
+
+  // Start all markers hidden
+  markerLocations.forEach(key => {
+    markerMeshes[key].ring.material.opacity = 0;
+    markerMeshes[key].dot.material.opacity = 0;
+  });
+
+  const arcMeshes = [];
 
   for (let i = 0; i < pathOrder.length - 1; i++) {
-    const startLL = pathLatLons[i];
-    const endLL = pathLatLons[i + 1];
     const startPt = pathPoints[i];
     const endPt = pathPoints[i + 1];
 
     const angularDist = startPt.angleTo(endPt);
-    // Flight-path height: just above the surface, slightly higher for longer routes
     const heightMul = RADIUS * (1.08 + angularDist * 0.25);
 
-    // Place two control points at 1/3 and 2/3 along the great circle, pushed outward
     const cp1 = new THREE.Vector3().lerpVectors(startPt, endPt, 0.33);
     cp1.normalize().multiplyScalar(heightMul);
     const cp2 = new THREE.Vector3().lerpVectors(startPt, endPt, 0.66);
@@ -194,10 +221,23 @@
     const curve = new THREE.CubicBezierCurve3(startPt, cp1, cp2, endPt);
     const tubeGeo = new THREE.TubeGeometry(curve, 64, 0.02, 8, false);
     const tubeMat = new THREE.MeshBasicMaterial({
-      color: 0xe8a820, transparent: true, opacity: 0.5
+      color: 0xe8a820, transparent: true, opacity: 0  // hidden initially
     });
-    markerGroup.add(new THREE.Mesh(tubeGeo, tubeMat));
+    const mesh = new THREE.Mesh(tubeGeo, tubeMat);
+    markerGroup.add(mesh);
+    arcMeshes.push(mesh);
   }
+
+  // Build lookup: chapter key → which arc indices and markers to reveal
+  const chapterRevealMap = {};
+  arcRevealAtChapter.forEach((chapterKey, arcIdx) => {
+    if (!chapterRevealMap[chapterKey]) chapterRevealMap[chapterKey] = { arcs: [], markers: [] };
+    chapterRevealMap[chapterKey].arcs.push(arcIdx);
+  });
+  Object.entries(markerRevealAtChapter).forEach(([markerKey, chapterKey]) => {
+    if (!chapterRevealMap[chapterKey]) chapterRevealMap[chapterKey] = { arcs: [], markers: [] };
+    chapterRevealMap[chapterKey].markers.push(markerKey);
+  });
 
   // --- HELPERS ---
   function latLonToVec3(lat, lon, r) {
@@ -245,6 +285,7 @@
   const chapterEls = Array.from(document.querySelectorAll('.chapter'));
 
   let activeChapter = 'intro';
+  const revealedChapters = new Set(); // chapters we've already processed reveals for
 
   function setActiveChapter(locKey) {
     if (locKey === activeChapter || !locations[locKey]) return;
@@ -261,9 +302,26 @@
       }
     }
 
+    // Reveal arcs and markers associated with this chapter (only once each)
+    if (!revealedChapters.has(locKey)) {
+      revealedChapters.add(locKey);
+      const reveals = chapterRevealMap[locKey];
+      if (reveals) {
+        reveals.arcs.forEach(idx => {
+          arcMeshes[idx].material.opacity = 0.5;
+        });
+        reveals.markers.forEach(markerKey => {
+          markerMeshes[markerKey].ring.material.opacity = 0.7;
+          markerMeshes[markerKey].dot.material.opacity = 0.9;
+        });
+      }
+    }
+
+    // Highlight active marker, dim the rest (only among already-revealed ones)
     const activeMarker = chapterToMarker(locKey);
     markerLocations.forEach(key => {
       const m = markerMeshes[key];
+      if (m.dot.material.opacity === 0) return; // still hidden, leave it
       const isActive = key === activeMarker;
       m.ring.material.opacity = isActive ? 1 : 0.4;
       m.dot.material.opacity = isActive ? 1 : 0.5;
