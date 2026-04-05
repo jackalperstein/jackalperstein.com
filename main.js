@@ -68,7 +68,7 @@ document.querySelectorAll('.timeline-item').forEach((item, i) => {
     y: Math.random() * canvas.height,
     vx: (Math.random() - 0.5) * 0.2,
     vy: (Math.random() - 0.5) * 0.2,
-    r: Math.random() * 1.2 + 0.4
+    r: Math.random() * 2.0 + 1.0
   }));
 
   function draw() {
@@ -80,10 +80,10 @@ document.querySelectorAll('.timeline-item').forEach((item, i) => {
         const dy = particles[i].y - particles[j].y;
         const dist = Math.sqrt(dx * dx + dy * dy);
         if (dist < MAX_DIST) {
-          const alpha = 0.12 * (1 - dist / MAX_DIST);
+          const alpha = 0.35 * (1 - dist / MAX_DIST);
           ctx.beginPath();
           ctx.strokeStyle = `rgba(255,255,255,${alpha})`;
-          ctx.lineWidth = 0.6;
+          ctx.lineWidth = 1.4;
           ctx.moveTo(particles[i].x, particles[i].y);
           ctx.lineTo(particles[j].x, particles[j].y);
           ctx.stroke();
@@ -94,7 +94,7 @@ document.querySelectorAll('.timeline-item').forEach((item, i) => {
     particles.forEach(p => {
       ctx.beginPath();
       ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-      ctx.fillStyle = 'rgba(255,255,255,0.4)';
+      ctx.fillStyle = 'rgba(255,255,255,0.85)';
       ctx.fill();
 
       p.x += p.vx;
