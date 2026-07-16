@@ -367,9 +367,21 @@ body {
 
 /* ============= RESPONSIVE ============= */
 @media (max-width: 900px) {
+  /* Open each chapter with a stretch of bare globe: the camera flight
+     triggers while the screen is clear, then the card scrolls in. */
   .chapter {
-    padding: 4rem 4vw;
+    padding: 130vh 4vw 18vh;
     align-items: center;
+    justify-content: flex-start;
+  }
+
+  .chapter-intro {
+    padding: 0 2rem;
+    justify-content: center;
+  }
+
+  .chapter-outro {
+    padding-top: 70vh;
   }
 
   .chapter-card {
