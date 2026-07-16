@@ -315,28 +315,17 @@ body {
   letter-spacing: 0.04em;
   padding: 0.85rem 1.7rem;
   border-radius: 10px;
-  border: 1px solid rgba(255,255,255,0.25);
-  color: #fff;
+  border: 1px solid var(--yellow);
+  color: #0c2340;
   text-decoration: none;
-  background: rgba(255,255,255,0.07);
+  background: var(--yellow);
   transition: all 0.2s;
 }
 
 .cta-btn:hover {
-  background: rgba(255,255,255,0.16);
-  border-color: rgba(255,255,255,0.45);
-  transform: translateY(-2px);
-}
-
-.cta-primary {
-  background: var(--yellow);
-  border-color: var(--yellow);
-  color: #0c2340;
-}
-
-.cta-primary:hover {
   background: var(--yellow-soft);
   border-color: var(--yellow-soft);
+  transform: translateY(-2px);
 }
 
 .cta-icon {
