@@ -254,16 +254,43 @@
     chapterRevealMap[chapterKey].markers.push(markerKey);
   });
 
-  // --- CAMERA STATE (spherical interpolation) ---
+  // --- CAMERA STATE (eased flight tween) ---
   let currentSpherical = {
     lat: locations.intro.lat,
     lon: locations.intro.lon,
     dist: locations.intro.dist
   };
-  let targetSpherical = { ...currentSpherical };
+  let tween = null; // active camera flight
 
   camera.position.copy(latLonToCamera(currentSpherical.lat, currentSpherical.lon, currentSpherical.dist));
   camera.lookAt(0, 0, 0);
+
+  function easeInOutCubic(t) {
+    return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+  }
+
+  // Fly the camera to a location: ease in/out, gain altitude mid-route
+  // (like a flight) so long hops never feel like a violent fling.
+  function startFlight(to) {
+    const from = { ...currentSpherical };
+    const lonDelta = shortestLonDelta(from.lon, to.lon);
+    const latDelta = to.lat - from.lat;
+    const angDist = Math.sqrt(latDelta * latDelta + lonDelta * lonDelta); // degrees
+
+    // Longer routes get more time (1.4s short hop → ~3.4s transatlantic)
+    const durSec = Math.min(3.4, 1.4 + angDist / 55);
+    // Altitude bump grows with distance, capped so we never leave orbit
+    const bump = Math.min(7, angDist * 0.055);
+
+    tween = {
+      t0: performance.now(),
+      dur: durSec * 1000,
+      from,
+      to: { lat: to.lat, lon: to.lon, dist: to.dist },
+      lonDelta,
+      bump
+    };
+  }
 
   const labelEl = document.getElementById('globe-label');
   const scrollHint = document.getElementById('scroll-hint');
@@ -285,7 +312,7 @@
     if (locKey === activeChapter || !locations[locKey]) return;
     activeChapter = locKey;
     const loc = locations[locKey];
-    targetSpherical = { lat: loc.lat, lon: loc.lon, dist: loc.dist };
+    startFlight(loc);
 
     if (labelEl) {
       if (loc.label) {
@@ -344,44 +371,42 @@
   onScroll();
 
   // --- ANIMATION LOOP ---
-  const SMOOTH_TIME = 1.8;
-  let lastTime = performance.now();
-
   function animate(now) {
     requestAnimationFrame(animate);
 
-    const dt = Math.min((now - lastTime) / 1000, 0.1);
-    lastTime = now;
+    if (tween) {
+      const t = Math.min(1, (now - tween.t0) / tween.dur);
+      const e = easeInOutCubic(t);
 
-    const factor = 1 - Math.exp(-3 / SMOOTH_TIME * dt);
+      currentSpherical.lat = tween.from.lat + (tween.to.lat - tween.from.lat) * e;
+      currentSpherical.lon = tween.from.lon + tween.lonDelta * e;
 
-    currentSpherical.lat += (targetSpherical.lat - currentSpherical.lat) * factor;
-    currentSpherical.lon += shortestLonDelta(currentSpherical.lon, targetSpherical.lon) * factor;
-    currentSpherical.dist += (targetSpherical.dist - currentSpherical.dist) * factor;
+      // Base altitude path plus a mid-flight climb that peaks halfway
+      const base = tween.from.dist + (tween.to.dist - tween.from.dist) * e;
+      currentSpherical.dist = base + Math.sin(Math.PI * e) * tween.bump;
+
+      if (t >= 1) tween = null;
+    } else if (activeChapter === 'intro') {
+      // Idle drift when zoomed out on intro
+      currentSpherical.lon += 0.04;
+    }
 
     while (currentSpherical.lon > 180) currentSpherical.lon -= 360;
     while (currentSpherical.lon < -180) currentSpherical.lon += 360;
 
-    // Idle drift when zoomed out on intro
-    if (activeChapter === 'intro') {
-      targetSpherical.lon += 0.04;
-    }
-
     const camPos = latLonToCamera(currentSpherical.lat, currentSpherical.lon, currentSpherical.dist);
     camera.position.copy(camPos);
 
-    // Shift the globe right of center on desktop so floating cards
-    // on the left don't cover the focused location.
-    // Look at a point slightly to the LEFT of the globe center (in
-    // camera space), which pushes the globe visually to the RIGHT.
+    // Keep the focused location clear of the floating cards:
+    // desktop — cards sit left, so push the globe right of center;
+    // mobile — cards scroll over the bottom, so push the globe up.
+    const forward = new THREE.Vector3(0, 0, 0).sub(camPos).normalize();
+    const rightVec = new THREE.Vector3().crossVectors(forward, new THREE.Vector3(0, 1, 0)).normalize();
     if (window.innerWidth > 900) {
-      const forward = new THREE.Vector3(0, 0, 0).sub(camPos).normalize();
-      const right = new THREE.Vector3().crossVectors(forward, new THREE.Vector3(0, 1, 0)).normalize();
-      const shift = currentSpherical.dist * 0.22;
-      const target = right.multiplyScalar(-shift);
-      camera.lookAt(target);
+      camera.lookAt(rightVec.multiplyScalar(-currentSpherical.dist * 0.22));
     } else {
-      camera.lookAt(0, 0, 0);
+      const upVec = new THREE.Vector3().crossVectors(rightVec, forward).normalize();
+      camera.lookAt(upVec.multiplyScalar(-currentSpherical.dist * 0.16));
     }
 
     renderer.render(scene, camera);
