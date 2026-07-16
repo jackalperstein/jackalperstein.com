@@ -1,5 +1,5 @@
 // ============================================
-//  JOURNEY PAGE · Scrollytelling Globe
+//  JACK ALPERSTEIN · Full-screen Journey Globe
 // ============================================
 
 (function () {
@@ -11,7 +11,7 @@
   const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 1000);
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-  renderer.setClearColor(0x000000, 0);
+  renderer.setClearColor(0x000000, 1);
 
   const container = document.getElementById('globe-container');
 
@@ -24,9 +24,18 @@
   }
   resize();
   window.addEventListener('resize', resize);
+  window.addEventListener('load', resize);
+  // Self-heal: if layout wasn't ready at init, the canvas is 0x0 — fix it
+  const sizeCheck = setInterval(() => {
+    if (canvas.width === 0 || canvas.height === 0) {
+      resize();
+    } else {
+      clearInterval(sizeCheck);
+    }
+  }, 100);
 
   // --- STARFIELD ---
-  const starCount = 1500;
+  const starCount = 2200;
   const starGeo = new THREE.BufferGeometry();
   const starPositions = new Float32Array(starCount * 3);
   for (let i = 0; i < starCount; i++) {
@@ -55,7 +64,6 @@
   const earthTex = loader.load(
     'assets/earth-texture.jpg',
     function (tex) {
-      // Enable anisotropic filtering for sharper zoomed-in views
       tex.anisotropy = renderer.capabilities.getMaxAnisotropy();
       tex.minFilter = THREE.LinearMipmapLinearFilter;
       tex.magFilter = THREE.LinearFilter;
@@ -100,7 +108,6 @@
   scene.add(new THREE.Mesh(atmosGeo, atmosMat));
 
   // --- LOCATION DATA ---
-  // San Diego and Los Angeles share a single "Southern California" marker
   const SOCAL = { lat: 33.6, lon: -117.7, dist: 11 };
 
   const locations = {
@@ -111,11 +118,31 @@
     cameroon:   { lat: 4.0, lon: 14.0,  dist: 10, label: 'East Region, Cameroon' },
     chad:       { lat: 9.0, lon: 18.5,  dist: 10, label: 'Moyen-Chari, Chad' },
     atlanta:    { lat: 33.75, lon: -84.39, dist: 11, label: 'Atlanta, Georgia' },
-    losangeles: { lat: SOCAL.lat, lon: SOCAL.lon, dist: SOCAL.dist, label: 'Southern California' },
+    losangeles: { lat: SOCAL.lat, lon: SOCAL.lon, dist: SOCAL.dist, label: 'Los Angeles, California' },
     kinshasa:   { lat: -4.32, lon: 15.31, dist: 10, label: 'Kinshasa, DRC' },
-    losangeles2:{ lat: SOCAL.lat, lon: SOCAL.lon, dist: SOCAL.dist, label: 'Southern California' },
-    outro:      { lat: 20, lon: -40,   dist: 22, label: '' }
+    losangeles2:{ lat: SOCAL.lat, lon: SOCAL.lon, dist: 13, label: 'Los Angeles, California' }
   };
+
+  // --- HELPERS ---
+  function latLonToVec3(lat, lon, r) {
+    const phi = (90 - lat) * Math.PI / 180;
+    const theta = (lon + 180) * Math.PI / 180;
+    return new THREE.Vector3(
+      -r * Math.sin(phi) * Math.cos(theta),
+       r * Math.cos(phi),
+       r * Math.sin(phi) * Math.sin(theta)
+    );
+  }
+
+  function latLonToCamera(lat, lon, dist) {
+    const phi = (90 - lat) * Math.PI / 180;
+    const theta = (lon + 180) * Math.PI / 180;
+    return new THREE.Vector3(
+      -dist * Math.sin(phi) * Math.cos(theta),
+       dist * Math.cos(phi),
+       dist * Math.sin(phi) * Math.sin(theta)
+    );
+  }
 
   // --- MARKERS ---
   const markerGroup = new THREE.Group();
@@ -140,7 +167,7 @@
 
     const ringGeo = new THREE.RingGeometry(0.06, 0.1, 24);
     const ringMat = new THREE.MeshBasicMaterial({
-      color: 0xe8a820, side: THREE.DoubleSide, transparent: true, opacity: 0.7
+      color: 0xe8a820, side: THREE.DoubleSide, transparent: true, opacity: 0
     });
     const ring = new THREE.Mesh(ringGeo, ringMat);
     ring.position.copy(pos);
@@ -148,7 +175,7 @@
 
     const dotGeo = new THREE.CircleGeometry(0.05, 16);
     const dotMat = new THREE.MeshBasicMaterial({
-      color: 0xe8a820, side: THREE.DoubleSide, transparent: true, opacity: 0.9
+      color: 0xe8a820, side: THREE.DoubleSide, transparent: true, opacity: 0
     });
     const dot = new THREE.Mesh(dotGeo, dotMat);
     dot.position.copy(pos);
@@ -159,35 +186,30 @@
     markerMeshes[key] = { ring, dot };
   });
 
-  // Map chapter keys to their marker key
   function chapterToMarker(chapterKey) {
     if (chapterKey === 'sandiego' || chapterKey === 'losangeles' || chapterKey === 'losangeles2') return 'socal';
     return chapterKey;
   }
 
-  // --- JOURNEY PATH (arc lines between markers) ---
-  // pathOrder defines the travel sequence. Each arc [i] reveals when the chapter at
-  // arcRevealAtChapter[i] becomes active.
+  // --- JOURNEY PATH (arcs revealed progressively) ---
   const pathOrder = ['socal', 'kenya', 'socal', 'berkeley', 'cameroon', 'chad', 'atlanta', 'socal', 'kinshasa', 'socal'];
   const pathPoints = pathOrder.map(key => {
     const loc = markerCoords[key] || SOCAL;
     return latLonToVec3(loc.lat, loc.lon, RADIUS * 1.003);
   });
 
-  // Which chapter key triggers each arc to appear (arc i connects pathOrder[i] → pathOrder[i+1])
   const arcRevealAtChapter = [
-    'kenya',       // 0: socal → kenya
-    'berkeley',    // 1: kenya → socal
-    'berkeley',    // 2: socal → berkeley
-    'cameroon',    // 3: berkeley → cameroon
-    'chad',        // 4: cameroon → chad
-    'atlanta',     // 5: chad → atlanta
-    'losangeles',  // 6: atlanta → socal
-    'kinshasa',    // 7: socal → kinshasa
-    'losangeles2', // 8: kinshasa → socal
+    'kenya',       // socal → kenya
+    'berkeley',    // kenya → socal
+    'berkeley',    // socal → berkeley
+    'cameroon',    // berkeley → cameroon
+    'chad',        // cameroon → chad
+    'atlanta',     // chad → atlanta
+    'losangeles',  // atlanta → socal
+    'kinshasa',    // socal → kinshasa
+    'losangeles2', // kinshasa → socal
   ];
 
-  // Also hide each marker until its chapter is reached
   const markerRevealAtChapter = {
     socal:    'sandiego',
     kenya:    'kenya',
@@ -197,12 +219,6 @@
     atlanta:  'atlanta',
     kinshasa: 'kinshasa',
   };
-
-  // Start all markers hidden
-  markerLocations.forEach(key => {
-    markerMeshes[key].ring.material.opacity = 0;
-    markerMeshes[key].dot.material.opacity = 0;
-  });
 
   const arcMeshes = [];
 
@@ -224,11 +240,10 @@
       color: 0xe8a820, transparent: true, opacity: 0.5
     });
     const mesh = new THREE.Mesh(tubeGeo, tubeMat);
-    // Do NOT add to scene yet — added on reveal to avoid clipping markers
+    // Not added to scene until revealed
     arcMeshes.push(mesh);
   }
 
-  // Build lookup: chapter key → which arc indices and markers to reveal
   const chapterRevealMap = {};
   arcRevealAtChapter.forEach((chapterKey, arcIdx) => {
     if (!chapterRevealMap[chapterKey]) chapterRevealMap[chapterKey] = { arcs: [], markers: [] };
@@ -239,27 +254,6 @@
     chapterRevealMap[chapterKey].markers.push(markerKey);
   });
 
-  // --- HELPERS ---
-  function latLonToVec3(lat, lon, r) {
-    const phi = (90 - lat) * Math.PI / 180;
-    const theta = (lon + 180) * Math.PI / 180;
-    return new THREE.Vector3(
-      -r * Math.sin(phi) * Math.cos(theta),
-       r * Math.cos(phi),
-       r * Math.sin(phi) * Math.sin(theta)
-    );
-  }
-
-  function latLonToCamera(lat, lon, dist) {
-    const phi = (90 - lat) * Math.PI / 180;
-    const theta = (lon + 180) * Math.PI / 180;
-    return new THREE.Vector3(
-      -dist * Math.sin(phi) * Math.cos(theta),
-       dist * Math.cos(phi),
-       dist * Math.sin(phi) * Math.sin(theta)
-    );
-  }
-
   // --- CAMERA STATE (spherical interpolation) ---
   let currentSpherical = {
     lat: locations.intro.lat,
@@ -268,11 +262,11 @@
   };
   let targetSpherical = { ...currentSpherical };
 
-  const initPos = latLonToCamera(currentSpherical.lat, currentSpherical.lon, currentSpherical.dist);
-  camera.position.copy(initPos);
+  camera.position.copy(latLonToCamera(currentSpherical.lat, currentSpherical.lon, currentSpherical.dist));
   camera.lookAt(0, 0, 0);
 
   const labelEl = document.getElementById('globe-label');
+  const scrollHint = document.getElementById('scroll-hint');
 
   function shortestLonDelta(from, to) {
     let delta = to - from;
@@ -285,7 +279,7 @@
   const chapterEls = Array.from(document.querySelectorAll('.chapter'));
 
   let activeChapter = 'intro';
-  const revealedChapters = new Set(); // chapters we've already processed reveals for
+  const revealedChapters = new Set();
 
   function setActiveChapter(locKey) {
     if (locKey === activeChapter || !locations[locKey]) return;
@@ -302,14 +296,17 @@
       }
     }
 
-    // Reveal arcs and markers associated with this chapter (only once each)
+    // Hide scroll hint once journey begins
+    if (scrollHint) {
+      scrollHint.classList.toggle('hidden', locKey !== 'intro');
+    }
+
+    // Reveal arcs and markers for this chapter (once)
     if (!revealedChapters.has(locKey)) {
       revealedChapters.add(locKey);
       const reveals = chapterRevealMap[locKey];
       if (reveals) {
-        reveals.arcs.forEach(idx => {
-          markerGroup.add(arcMeshes[idx]); // add to scene now
-        });
+        reveals.arcs.forEach(idx => markerGroup.add(arcMeshes[idx]));
         reveals.markers.forEach(markerKey => {
           markerMeshes[markerKey].ring.material.opacity = 0.7;
           markerMeshes[markerKey].dot.material.opacity = 0.9;
@@ -317,11 +314,11 @@
       }
     }
 
-    // Highlight active marker, dim the rest (only among already-revealed ones)
+    // Highlight active marker among revealed ones
     const activeMarker = chapterToMarker(locKey);
     markerLocations.forEach(key => {
       const m = markerMeshes[key];
-      if (m.dot.material.opacity === 0) return; // still hidden, leave it
+      if (m.dot.material.opacity === 0) return;
       const isActive = key === activeMarker;
       m.ring.material.opacity = isActive ? 1 : 0.4;
       m.dot.material.opacity = isActive ? 1 : 0.5;
@@ -347,17 +344,15 @@
   onScroll();
 
   // --- ANIMATION LOOP ---
-  // Use time-based smoothing for frame-rate-independent, stutter-free transitions
-  const SMOOTH_TIME = 1.8; // seconds to ~95% of target
+  const SMOOTH_TIME = 1.8;
   let lastTime = performance.now();
 
   function animate(now) {
     requestAnimationFrame(animate);
 
-    const dt = Math.min((now - lastTime) / 1000, 0.1); // cap delta to avoid jumps
+    const dt = Math.min((now - lastTime) / 1000, 0.1);
     lastTime = now;
 
-    // Exponential smoothing factor (frame-rate independent)
     const factor = 1 - Math.exp(-3 / SMOOTH_TIME * dt);
 
     currentSpherical.lat += (targetSpherical.lat - currentSpherical.lat) * factor;
@@ -367,14 +362,27 @@
     while (currentSpherical.lon > 180) currentSpherical.lon -= 360;
     while (currentSpherical.lon < -180) currentSpherical.lon += 360;
 
-    // Subtle idle drift when zoomed out
-    if (activeChapter === 'intro' || activeChapter === 'outro') {
+    // Idle drift when zoomed out on intro
+    if (activeChapter === 'intro') {
       targetSpherical.lon += 0.04;
     }
 
     const camPos = latLonToCamera(currentSpherical.lat, currentSpherical.lon, currentSpherical.dist);
     camera.position.copy(camPos);
-    camera.lookAt(0, 0, 0);
+
+    // Shift the globe right of center on desktop so floating cards
+    // on the left don't cover the focused location.
+    // Look at a point slightly to the LEFT of the globe center (in
+    // camera space), which pushes the globe visually to the RIGHT.
+    if (window.innerWidth > 900) {
+      const forward = new THREE.Vector3(0, 0, 0).sub(camPos).normalize();
+      const right = new THREE.Vector3().crossVectors(forward, new THREE.Vector3(0, 1, 0)).normalize();
+      const shift = currentSpherical.dist * 0.22;
+      const target = right.multiplyScalar(-shift);
+      camera.lookAt(target);
+    } else {
+      camera.lookAt(0, 0, 0);
+    }
 
     renderer.render(scene, camera);
   }
@@ -389,7 +397,7 @@
     });
   }, { threshold: 0.15 });
 
-  document.querySelectorAll('.chapter-card, .photo-frame').forEach(el => {
+  document.querySelectorAll('.chapter-card, .intro-content').forEach(el => {
     el.classList.add('fade-in');
     cardObserver.observe(el);
   });
