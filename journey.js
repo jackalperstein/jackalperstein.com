@@ -394,19 +394,23 @@
     while (currentSpherical.lon > 180) currentSpherical.lon -= 360;
     while (currentSpherical.lon < -180) currentSpherical.lon += 360;
 
-    const camPos = latLonToCamera(currentSpherical.lat, currentSpherical.lon, currentSpherical.dist);
+    // Mobile: bring the camera closer so the globe overfills the tall
+    // narrow screen — no visible bottom edge even with the upward shift.
+    const isMobile = window.innerWidth <= 900;
+    const dispDist = currentSpherical.dist * (isMobile ? 0.82 : 1);
+    const camPos = latLonToCamera(currentSpherical.lat, currentSpherical.lon, dispDist);
     camera.position.copy(camPos);
 
     // Keep the focused location clear of the floating cards:
     // desktop — cards sit left, so push the globe right of center;
-    // mobile — cards scroll over the bottom, so push the globe up.
+    // mobile — cards scroll over the bottom, so push the globe up (gently).
     const forward = new THREE.Vector3(0, 0, 0).sub(camPos).normalize();
     const rightVec = new THREE.Vector3().crossVectors(forward, new THREE.Vector3(0, 1, 0)).normalize();
-    if (window.innerWidth > 900) {
-      camera.lookAt(rightVec.multiplyScalar(-currentSpherical.dist * 0.22));
+    if (!isMobile) {
+      camera.lookAt(rightVec.multiplyScalar(-dispDist * 0.22));
     } else {
       const upVec = new THREE.Vector3().crossVectors(rightVec, forward).normalize();
-      camera.lookAt(upVec.multiplyScalar(-currentSpherical.dist * 0.16));
+      camera.lookAt(upVec.multiplyScalar(-dispDist * 0.10));
     }
 
     renderer.render(scene, camera);
