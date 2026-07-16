@@ -432,7 +432,7 @@
   });
 })();
 
-// --- PHOTO LIGHTBOX ---
+// --- PHOTO LIGHTBOX (with per-chapter carousel) ---
 (function initLightbox() {
   const photos = document.querySelectorAll('.photo-frame img');
   if (!photos.length) return;
@@ -443,16 +443,39 @@
   overlay.innerHTML =
     '<div class="lightbox-inner">' +
       '<button class="lightbox-close" aria-label="Close">&times;</button>' +
+      '<button class="lightbox-nav lightbox-prev" aria-label="Previous photo">&#8249;</button>' +
       '<img class="lightbox-img" alt="">' +
+      '<button class="lightbox-nav lightbox-next" aria-label="Next photo">&#8250;</button>' +
     '</div>';
   document.body.appendChild(overlay);
 
   const lbImg = overlay.querySelector('.lightbox-img');
   const closeBtn = overlay.querySelector('.lightbox-close');
+  const prevBtn = overlay.querySelector('.lightbox-prev');
+  const nextBtn = overlay.querySelector('.lightbox-next');
 
-  function open(src, alt) {
-    lbImg.src = src;
-    lbImg.alt = alt || '';
+  // Photos are grouped by their chapter, so arrows walk within one
+  // chapter's set rather than spilling into the next chapter.
+  let group = [];
+  let index = 0;
+
+  function render() {
+    const img = group[index];
+    lbImg.src = img.src;
+    lbImg.alt = img.alt || '';
+    // Ends are dimmed and unclickable — the carousel does not wrap
+    prevBtn.disabled = index === 0;
+    nextBtn.disabled = index === group.length - 1;
+  }
+
+  function open(clicked) {
+    const chapter = clicked.closest('.chapter');
+    group = chapter
+      ? Array.from(chapter.querySelectorAll('.photo-frame img'))
+      : [clicked];
+    index = group.indexOf(clicked);
+    if (index < 0) index = 0;
+    render();
     overlay.classList.add('open');
     document.body.style.overflow = 'hidden';
   }
@@ -462,16 +485,30 @@
     document.body.style.overflow = '';
   }
 
+  function step(delta) {
+    const next = index + delta;
+    if (next < 0 || next >= group.length) return;
+    index = next;
+    render();
+  }
+
   photos.forEach(img => {
     img.style.cursor = 'zoom-in';
-    img.addEventListener('click', () => open(img.src, img.alt));
+    img.addEventListener('click', () => open(img));
   });
 
   closeBtn.addEventListener('click', close);
+  prevBtn.addEventListener('click', (e) => { e.stopPropagation(); step(-1); });
+  nextBtn.addEventListener('click', (e) => { e.stopPropagation(); step(1); });
+
   overlay.addEventListener('click', (e) => {
     if (e.target === overlay || e.target.classList.contains('lightbox-inner')) close();
   });
+
   document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && overlay.classList.contains('open')) close();
+    if (!overlay.classList.contains('open')) return;
+    if (e.key === 'Escape') close();
+    else if (e.key === 'ArrowLeft') step(-1);
+    else if (e.key === 'ArrowRight') step(1);
   });
 })();
