@@ -358,6 +358,76 @@ body {
   padding-top: 1.2rem;
 }
 
+/* ============= PHOTO LIGHTBOX ============= */
+.lightbox-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 5vh 5vw;
+  background: rgba(4, 10, 20, 0.82);
+  backdrop-filter: blur(10px);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+
+.lightbox-overlay.open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.lightbox-inner {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.lightbox-img {
+  display: block;
+  max-width: min(560px, 90vw);
+  max-height: 85vh;
+  width: auto;
+  height: auto;
+  border-radius: 12px;
+  box-shadow: 0 16px 60px rgba(0, 0, 0, 0.55);
+  transform: scale(0.94);
+  transition: transform 0.25s ease;
+}
+
+.lightbox-overlay.open .lightbox-img {
+  transform: scale(1);
+}
+
+.lightbox-close {
+  position: absolute;
+  top: -14px;
+  right: -14px;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: none;
+  background: var(--yellow);
+  color: #0c2340;
+  font-size: 1.4rem;
+  line-height: 1;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+  transition: background 0.2s, transform 0.2s;
+}
+
+.lightbox-close:hover {
+  background: var(--yellow-soft);
+  transform: scale(1.08);
+}
+
 /* ============= FADE-IN ============= */
 .fade-in {
   opacity: 0;

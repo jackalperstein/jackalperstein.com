@@ -431,3 +431,47 @@
     cardObserver.observe(el);
   });
 })();
+
+// --- PHOTO LIGHTBOX ---
+(function initLightbox() {
+  const photos = document.querySelectorAll('.photo-frame img');
+  if (!photos.length) return;
+
+  // Build the overlay once
+  const overlay = document.createElement('div');
+  overlay.className = 'lightbox-overlay';
+  overlay.innerHTML =
+    '<div class="lightbox-inner">' +
+      '<button class="lightbox-close" aria-label="Close">&times;</button>' +
+      '<img class="lightbox-img" alt="">' +
+    '</div>';
+  document.body.appendChild(overlay);
+
+  const lbImg = overlay.querySelector('.lightbox-img');
+  const closeBtn = overlay.querySelector('.lightbox-close');
+
+  function open(src, alt) {
+    lbImg.src = src;
+    lbImg.alt = alt || '';
+    overlay.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function close() {
+    overlay.classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
+  photos.forEach(img => {
+    img.style.cursor = 'zoom-in';
+    img.addEventListener('click', () => open(img.src, img.alt));
+  });
+
+  closeBtn.addEventListener('click', close);
+  overlay.addEventListener('click', (e) => {
+    if (e.target === overlay || e.target.classList.contains('lightbox-inner')) close();
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && overlay.classList.contains('open')) close();
+  });
+})();
