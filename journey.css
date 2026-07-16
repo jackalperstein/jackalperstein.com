@@ -347,6 +347,13 @@ body {
 .cta-icon {
   font-weight: 700;
   font-size: 0.8rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cta-icon svg {
+  display: block;
 }
 
 .outro-footer {
