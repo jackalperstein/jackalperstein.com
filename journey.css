@@ -229,10 +229,24 @@ body {
   line-height: 1.85;
 }
 
+.chapter-text a {
+  color: var(--yellow);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.chapter-text a:hover {
+  color: var(--yellow-soft);
+}
+
+.chapter-text-more {
+  margin-top: 0.8rem;
+}
+
 /* ============= PHOTOS ============= */
 .chapter-photos {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(2, 1fr);
   gap: 0.9rem;
   margin-top: 1.8rem;
 }
