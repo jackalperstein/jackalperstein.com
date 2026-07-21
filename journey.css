@@ -71,30 +71,132 @@ body {
   text-shadow: 0 1px 6px rgba(0,0,0,0.6);
 }
 
-/* ============= LOCATION LABEL ============= */
-.globe-location-label {
+/* ============= JUMP-TO NAV (top-right) ============= */
+.globe-nav {
   position: fixed;
   top: 1.6rem;
   right: 2rem;
-  z-index: 50;
+  z-index: 60;
+}
+
+.globe-nav-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
   font-family: var(--font-display);
   font-size: 0.8rem;
   font-weight: 600;
   letter-spacing: 0.08em;
-  color: rgba(255,255,255,0.9);
-  background: rgba(12,35,64,0.6);
-  backdrop-filter: blur(8px);
-  padding: 0.5rem 1.2rem;
-  border-radius: 20px;
-  border: 1px solid rgba(255,255,255,0.15);
-  opacity: 0;
-  transition: opacity 0.5s;
+  color: rgba(255,255,255,0.92);
+  background: rgba(12,35,64,0.55);
+  backdrop-filter: blur(10px);
+  padding: 0.5rem 0.7rem 0.5rem 1.1rem;
+  border-radius: 22px;
+  border: none;
+  box-shadow: 0 6px 24px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.10);
+  cursor: pointer;
   white-space: nowrap;
-  pointer-events: none;
+  transition: background 0.25s, box-shadow 0.25s;
 }
 
-.globe-location-label.visible {
+.globe-nav-toggle:hover {
+  background: rgba(18,48,84,0.72);
+  box-shadow: 0 8px 28px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.14);
+}
+
+.globe-nav-label {
+  max-width: 46vw;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Hamburger icon → morphs to an X when open */
+.globe-nav-icon {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 3px;
+  width: 18px;
+  height: 14px;
+  flex: none;
+}
+
+.globe-nav-icon span {
+  display: block;
+  width: 100%;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--yellow);
+  transition: transform 0.28s ease, opacity 0.2s ease;
+}
+
+.globe-nav.open .globe-nav-icon span:nth-child(1) { transform: translateY(5px) rotate(45deg); }
+.globe-nav.open .globe-nav-icon span:nth-child(2) { opacity: 0; }
+.globe-nav.open .globe-nav-icon span:nth-child(3) { transform: translateY(-5px) rotate(-45deg); }
+
+/* Dropdown menu */
+.globe-nav-menu {
+  position: absolute;
+  top: calc(100% + 0.55rem);
+  right: 0;
+  min-width: 224px;
+  list-style: none;
+  margin: 0;
+  padding: 0.4rem;
+  background: rgba(8,20,38,0.82);
+  backdrop-filter: blur(16px);
+  border-radius: 16px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.10);
+  opacity: 0;
+  transform: translateY(-8px) scale(0.98);
+  transform-origin: top right;
+  pointer-events: none;
+  transition: opacity 0.22s ease, transform 0.22s ease;
+}
+
+.globe-nav.open .globe-nav-menu {
   opacity: 1;
+  transform: translateY(0) scale(1);
+  pointer-events: auto;
+}
+
+.globe-nav-item { margin: 0; }
+
+.globe-nav-link {
+  display: block;
+  width: 100%;
+  text-align: left;
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  color: var(--text-muted);
+  background: transparent;
+  border: none;
+  border-radius: 10px;
+  padding: 0.6rem 0.85rem;
+  cursor: pointer;
+  transition: background 0.18s, color 0.18s;
+}
+
+.globe-nav-link:hover {
+  background: rgba(255,255,255,0.07);
+  color: #fff;
+}
+
+.globe-nav-item.active .globe-nav-link {
+  color: var(--yellow);
+}
+
+.globe-nav-item.active .globe-nav-link::before {
+  content: '';
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  margin-right: 0.55rem;
+  border-radius: 50%;
+  background: var(--yellow);
+  vertical-align: middle;
 }
 
 /* ============= CHAPTERS ============= */
@@ -121,12 +223,18 @@ body {
 }
 
 .intro-content {
-  background: rgba(8, 18, 34, 0.55);
-  backdrop-filter: blur(10px);
-  border: 1px solid var(--card-border);
-  border-radius: 20px;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0) 55%),
+    rgba(8, 18, 34, 0.55);
+  backdrop-filter: blur(12px);
+  border: none;
+  border-radius: 24px;
   padding: 3rem 3.5rem;
   max-width: 620px;
+  box-shadow:
+    0 28px 70px rgba(0,0,0,0.45),
+    0 0 60px rgba(125,184,232,0.06),
+    inset 0 1px 0 rgba(255,255,255,0.12);
 }
 
 .intro-name {
@@ -189,12 +297,21 @@ body {
 /* ============= CHAPTER CARDS ============= */
 .chapter-card {
   width: min(560px, 92vw);
-  background: var(--card-bg);
-  backdrop-filter: blur(14px);
-  border: 1px solid var(--card-border);
-  border-radius: 18px;
+  /* Soft glass + glow: a faint top-down light sheen layered over the
+     panel, no hard border — a top-rim highlight and a diffuse halo make
+     it lift off the globe instead of sitting flat. */
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0) 55%),
+    var(--card-bg);
+  backdrop-filter: blur(16px);
+  border: none;
+  border-radius: 22px;
   padding: 2.5rem 2.75rem;
-  box-shadow: 0 12px 48px rgba(0,0,0,0.45);
+  box-shadow:
+    0 28px 70px rgba(0,0,0,0.5),
+    0 6px 22px rgba(0,0,0,0.32),
+    0 0 60px rgba(125,184,232,0.06),
+    inset 0 1px 0 rgba(255,255,255,0.12);
 }
 
 .chapter-date {
@@ -518,5 +635,7 @@ body {
   .chapter-gallery { grid-template-columns: 1fr 1fr; }
 
   .name-badge { left: 1rem; top: 1rem; }
-  .globe-location-label { right: 1rem; top: 1rem; font-size: 0.7rem; }
+  .globe-nav { right: 1rem; top: 1rem; }
+  .globe-nav-toggle { font-size: 0.7rem; padding: 0.45rem 0.6rem 0.45rem 0.95rem; }
+  .globe-nav-label { max-width: 40vw; }
 }

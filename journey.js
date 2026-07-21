@@ -114,7 +114,7 @@
     intro:      { lat: 20, lon: -40,   dist: 22, label: '' },
     sandiego:   { lat: SOCAL.lat, lon: SOCAL.lon, dist: SOCAL.dist, label: 'Southern California' },
     kenya:      { lat: -0.42, lon: 36.95, dist: 10, label: 'Nyeri, Kenya' },
-    berkeley:   { lat: 37.87, lon: -122.26, dist: 11, label: 'UC Berkeley' },
+    berkeley:   { lat: 37.87, lon: -122.26, dist: 11, label: 'Berkeley, California' },
     cameroon:   { lat: 4.0, lon: 14.0,  dist: 10, label: 'East Region, Cameroon' },
     chad:       { lat: 9.0, lon: 18.5,  dist: 10, label: 'Moyen-Chari, Chad' },
     atlanta:    { lat: 33.75, lon: -84.39, dist: 11, label: 'Atlanta, Georgia' },
@@ -307,6 +307,7 @@
 
   let activeChapter = 'intro';
   const revealedChapters = new Set();
+  const navItemByLoc = {};
 
   function setActiveChapter(locKey) {
     if (locKey === activeChapter || !locations[locKey]) return;
@@ -315,13 +316,13 @@
     startFlight(loc);
 
     if (labelEl) {
-      if (loc.label) {
-        labelEl.textContent = loc.label;
-        labelEl.classList.add('visible');
-      } else {
-        labelEl.classList.remove('visible');
-      }
+      labelEl.textContent = loc.label || 'Explore';
     }
+
+    // Highlight the current section in the jump-to menu
+    Object.entries(navItemByLoc).forEach(([key, li]) => {
+      li.classList.toggle('active', key === locKey);
+    });
 
     // Hide scroll hint once journey begins
     if (scrollHint) {
@@ -365,6 +366,60 @@
       }
     }
     setActiveChapter(chapterEls[0].dataset.location);
+  }
+
+  // --- JUMP-TO NAV MENU (top-right hamburger) ---
+  const navRoot = document.getElementById('globe-nav');
+  const navToggle = document.getElementById('globe-nav-toggle');
+  const navMenu = document.getElementById('globe-nav-menu');
+
+  if (navRoot && navToggle && navMenu) {
+    chapterEls.forEach(ch => {
+      const locKey = ch.dataset.location;
+      const heading = ch.querySelector('.chapter-heading, .outro-heading');
+      const label = heading
+        ? heading.textContent.trim()
+        : (ch.classList.contains('chapter-intro') ? 'Top' : locKey);
+
+      const li = document.createElement('li');
+      li.className = 'globe-nav-item';
+      li.setAttribute('role', 'none');
+
+      const link = document.createElement('button');
+      link.type = 'button';
+      link.className = 'globe-nav-link';
+      link.setAttribute('role', 'menuitem');
+      link.textContent = label;
+      link.addEventListener('click', () => {
+        ch.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        closeNav();
+      });
+
+      li.appendChild(link);
+      navMenu.appendChild(li);
+      navItemByLoc[locKey] = li;
+    });
+
+    function openNav() {
+      navRoot.classList.add('open');
+      navToggle.setAttribute('aria-expanded', 'true');
+    }
+    function closeNav() {
+      navRoot.classList.remove('open');
+      navToggle.setAttribute('aria-expanded', 'false');
+    }
+
+    navToggle.addEventListener('click', (e) => {
+      e.stopPropagation();
+      navRoot.classList.contains('open') ? closeNav() : openNav();
+    });
+    // Click outside or Escape closes the menu
+    document.addEventListener('click', (e) => {
+      if (navRoot.classList.contains('open') && !navRoot.contains(e.target)) closeNav();
+    });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeNav();
+    });
   }
 
   window.addEventListener('scroll', onScroll, { passive: true });
