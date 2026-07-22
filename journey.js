@@ -379,7 +379,7 @@
       const heading = ch.querySelector('.chapter-heading, .outro-heading');
       const label = heading
         ? heading.textContent.trim()
-        : (ch.classList.contains('chapter-intro') ? 'Top' : locKey);
+        : (ch.classList.contains('chapter-intro') ? 'Explore' : locKey);
 
       const li = document.createElement('li');
       li.className = 'globe-nav-item';
