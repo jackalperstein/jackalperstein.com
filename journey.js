@@ -109,9 +109,12 @@
 
   // --- LOCATION DATA ---
   const SOCAL = { lat: 33.6, lon: -117.7, dist: 11 };
+  // Wide, whole-globe view over the Atlantic — shared by the intro ("Explore")
+  // and the outro ("Let's Connect") so both frame the Earth identically.
+  const EXPLORE_VIEW = { lat: 20, lon: -40, dist: 22 };
 
   const locations = {
-    intro:      { lat: 20, lon: -40,   dist: 22, label: '' },
+    intro:      { lat: EXPLORE_VIEW.lat, lon: EXPLORE_VIEW.lon, dist: EXPLORE_VIEW.dist, label: '' },
     sandiego:   { lat: SOCAL.lat, lon: SOCAL.lon, dist: SOCAL.dist, label: 'Southern California' },
     kenya:      { lat: -0.42, lon: 36.95, dist: 10, label: 'Nyeri, Kenya' },
     berkeley:   { lat: 37.87, lon: -122.26, dist: 11, label: 'Berkeley, California' },
@@ -120,7 +123,7 @@
     atlanta:    { lat: 33.75, lon: -84.39, dist: 11, label: 'Atlanta, Georgia' },
     losangeles: { lat: SOCAL.lat, lon: SOCAL.lon, dist: SOCAL.dist, label: 'Los Angeles, California' },
     kinshasa:   { lat: -4.32, lon: 15.31, dist: 10, label: 'Kinshasa, DRC' },
-    losangeles2:{ lat: SOCAL.lat, lon: SOCAL.lon, dist: 13, label: 'Los Angeles, California' }
+    losangeles2:{ lat: EXPLORE_VIEW.lat, lon: EXPLORE_VIEW.lon, dist: EXPLORE_VIEW.dist, label: 'Los Angeles, California' }
   };
 
   // --- HELPERS ---
