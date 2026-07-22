@@ -460,8 +460,9 @@
       currentSpherical.dist = base + Math.sin(Math.PI * e) * tween.bump;
 
       if (t >= 1) tween = null;
-    } else if (activeChapter === 'intro') {
-      // Idle drift when zoomed out on intro
+    } else if (activeChapter === 'intro' || activeChapter === 'losangeles2') {
+      // Idle drift when zoomed out on the intro ("Explore") and outro
+      // ("Let's Connect") — both share the wide EXPLORE_VIEW framing.
       currentSpherical.lon += 0.04;
     }
 
