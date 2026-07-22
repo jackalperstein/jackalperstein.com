@@ -309,6 +309,20 @@
   const revealedChapters = new Set();
   const navItemByLoc = {};
 
+  // Reveal a chapter's journey arcs and markers exactly once.
+  function revealChapter(locKey) {
+    if (revealedChapters.has(locKey)) return;
+    revealedChapters.add(locKey);
+    const reveals = chapterRevealMap[locKey];
+    if (reveals) {
+      reveals.arcs.forEach(idx => markerGroup.add(arcMeshes[idx]));
+      reveals.markers.forEach(markerKey => {
+        markerMeshes[markerKey].ring.material.opacity = 0.7;
+        markerMeshes[markerKey].dot.material.opacity = 0.9;
+      });
+    }
+  }
+
   function setActiveChapter(locKey) {
     if (locKey === activeChapter || !locations[locKey]) return;
     activeChapter = locKey;
@@ -330,17 +344,7 @@
     }
 
     // Reveal arcs and markers for this chapter (once)
-    if (!revealedChapters.has(locKey)) {
-      revealedChapters.add(locKey);
-      const reveals = chapterRevealMap[locKey];
-      if (reveals) {
-        reveals.arcs.forEach(idx => markerGroup.add(arcMeshes[idx]));
-        reveals.markers.forEach(markerKey => {
-          markerMeshes[markerKey].ring.material.opacity = 0.7;
-          markerMeshes[markerKey].dot.material.opacity = 0.9;
-        });
-      }
-    }
+    revealChapter(locKey);
 
     // Highlight active marker among revealed ones
     const activeMarker = chapterToMarker(locKey);
@@ -391,7 +395,7 @@
       link.setAttribute('role', 'menuitem');
       link.textContent = label;
       link.addEventListener('click', () => {
-        ch.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        jumpToChapter(ch);
         closeNav();
       });
 
@@ -399,6 +403,18 @@
       navMenu.appendChild(li);
       navItemByLoc[locKey] = li;
     });
+
+    // Jump to a section without the dizzying smooth page-scroll: snap the
+    // page instantly, then let the globe's camera flight be the only motion.
+    function jumpToChapter(targetEl) {
+      const targetIdx = chapterEls.indexOf(targetEl);
+      // Reveal every leg up to the target so the globe's path stays
+      // complete even though we skip the sections in between.
+      for (let i = 0; i <= targetIdx; i++) {
+        revealChapter(chapterEls[i].dataset.location);
+      }
+      targetEl.scrollIntoView({ behavior: 'instant', block: 'start' });
+    }
 
     function openNav() {
       navRoot.classList.add('open');
