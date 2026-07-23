@@ -22,6 +22,8 @@ jackalperstein.com/
 ├── journey.css       # All styles
 ├── journey.js        # Globe, camera flight, scroll sync, jump-to nav, photo lightbox
 ├── wrangler.jsonc    # Cloudflare deploy config (worker name: jackalperstein)
+├── scripts/
+│   └── strip-exif.py # Removes EXIF/GPS metadata from photos (run before committing new images)
 ├── assets/
 │   ├── earth-texture.jpg
 │   └── journey/<location>/…   # Per-chapter photos (sandiego, kenya, berkeley, …)
@@ -59,6 +61,20 @@ python -m http.server
 ```
 
 Then visit the printed `localhost` URL.
+
+## Adding or updating photos
+
+Photos from a phone or camera often carry EXIF metadata — GPS coordinates,
+timestamps, camera model. Strip it before committing so it never reaches the
+live site:
+
+```bash
+python scripts/strip-exif.py            # clean everything under assets/
+python scripts/strip-exif.py --check    # report only; exits non-zero if GPS is found
+```
+
+Re-saving is lossless (`quality='keep'`), so image dimensions and quality are
+unchanged. Requires Pillow (`pip install Pillow`).
 
 ## Deployment
 
