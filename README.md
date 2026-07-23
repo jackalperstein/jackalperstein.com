@@ -24,7 +24,6 @@ jackalperstein.com/
 ├── wrangler.jsonc    # Cloudflare deploy config (worker name: jackalperstein)
 ├── assets/
 │   ├── earth-texture.jpg
-│   ├── Jack Alperstein_Resume.pdf
 │   └── journey/<location>/…   # Per-chapter photos (sandiego, kenya, berkeley, …)
 ├── archive/          # Previous multi-page version of the site, kept for reference
 └── README.md
@@ -36,7 +35,7 @@ Scrolling advances through these stops; the globe flies to each and the
 jump-to nav (top-right) can skip to any of them:
 
 1. **Explore** — intro / wide view of the globe
-2. **Growing Up** — North San Diego County, California (1994–2013)
+2. **Growing Up** — North San Diego County, California (Born–2013)
 3. **A Wider World** — Nyeri, Kenya (2008)
 4. **Undergraduate** — Berkeley, California (2013–2017)
 5. **Peace Corps** — East Region, Cameroon (2017–2020)
@@ -44,7 +43,7 @@ jump-to nav (top-right) can skip to any of them:
 7. **Graduate School** — Atlanta, Georgia (2022–2024)
 8. **Rimoin Lab @ UCLA** — Los Angeles, California (2024–Present)
 9. **Global Fieldwork Continues** — Kinshasa, DRC (2024–Present)
-10. **Let's Connect** — outro with LinkedIn, Resume, GitHub, and Email links
+10. **Let's Connect** — outro with LinkedIn, GitHub, and Email links (resume available on request via email)
 
 Chapter photos open in a click-to-enlarge lightbox with carousel navigation.
 
