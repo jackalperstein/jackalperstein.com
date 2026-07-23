@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Projects | Jack Alperstein</title>
+  <meta name="description" content="Interactive R & Shiny data science projects by Jack Alperstein — Public Health Data Scientist." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <!-- Reuse the journey design tokens (colors, fonts, .cta-btn) -->
+  <link rel="stylesheet" href="journey.css">
+  <style>
+    /* Projects hub is a plain scroll page (no globe), so give the body a
+       deep-navy backdrop that matches the globe site's palette. */
+    body {
+      background:
+        radial-gradient(1100px 620px at 78% -8%, rgba(125,184,232,0.10), transparent 60%),
+        radial-gradient(900px 560px at 12% 108%, rgba(232,168,32,0.08), transparent 55%),
+        #05101f;
+      min-height: 100vh;
+    }
+
+    .projects-wrap {
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 4.5rem 5vw 5rem;
+    }
+
+    /* ---- Header ---- */
+    .projects-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      margin-bottom: 3rem;
+    }
+
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-family: var(--font-display);
+      font-size: 0.82rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      color: var(--text-muted);
+      text-decoration: none;
+      padding: 0.5rem 0.9rem;
+      border-radius: 20px;
+      background: rgba(12,35,64,0.5);
+      backdrop-filter: blur(10px);
+      transition: color 0.2s, background 0.2s;
+    }
+    .back-link:hover { color: #fff; background: rgba(18,48,84,0.7); }
+
+    .projects-brand {
+      display: flex;
+      flex-direction: column;
+      text-align: right;
+    }
+    .projects-brand-name {
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 1rem;
+      color: #fff;
+      letter-spacing: 0.02em;
+    }
+    .projects-brand-title {
+      font-size: 0.7rem;
+      font-weight: 500;
+      color: var(--text-muted);
+      letter-spacing: 0.06em;
+    }
+
+    /* ---- Intro ---- */
+    .projects-intro { margin-bottom: 2.6rem; }
+    .projects-eyebrow {
+      font-family: var(--font-display);
+      font-size: 0.78rem;
+      font-weight: 600;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--yellow);
+      margin-bottom: 0.7rem;
+    }
+    .projects-title {
+      font-family: var(--font-display);
+      font-size: clamp(2rem, 5vw, 3rem);
+      font-weight: 700;
+      color: #fff;
+      line-height: 1.1;
+      margin-bottom: 0.9rem;
+    }
+    .projects-lede {
+      font-size: 0.98rem;
+      color: var(--text-muted);
+      line-height: 1.8;
+      max-width: 640px;
+    }
+
+    /* ---- Grid ---- */
+    .projects-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 1.4rem;
+    }
+
+    .project-card {
+      display: flex;
+      flex-direction: column;
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0) 55%),
+        var(--card-bg);
+      backdrop-filter: blur(16px);
+      border-radius: 18px;
+      overflow: hidden;
+      box-shadow:
+        0 20px 50px rgba(0,0,0,0.42),
+        0 0 50px rgba(125,184,232,0.05),
+        inset 0 1px 0 rgba(255,255,255,0.10);
+      transition: transform 0.25s ease, box-shadow 0.25s ease;
+    }
+    .project-card:hover {
+      transform: translateY(-4px);
+      box-shadow:
+        0 30px 66px rgba(0,0,0,0.5),
+        0 0 60px rgba(125,184,232,0.10),
+        inset 0 1px 0 rgba(255,255,255,0.14);
+    }
+
+    /* Preview image / placeholder */
+    .project-preview {
+      aspect-ratio: 16 / 9;
+      background: rgba(255,255,255,0.04);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+    .project-preview img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .project-preview.placeholder {
+      border-bottom: 1.5px dashed rgba(255,255,255,0.16);
+      font-size: 0.72rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.32);
+    }
+
+    .project-body {
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      padding: 1.5rem 1.6rem 1.6rem;
+    }
+
+    .project-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      margin-bottom: 0.85rem;
+    }
+    .project-tag {
+      font-family: var(--font-display);
+      font-size: 0.64rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--blue-light);
+      background: rgba(125,184,232,0.12);
+      padding: 0.28rem 0.6rem;
+      border-radius: 6px;
+    }
+
+    .project-name {
+      font-family: var(--font-display);
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: #fff;
+      line-height: 1.25;
+      margin-bottom: 0.55rem;
+    }
+    .project-desc {
+      font-size: 0.88rem;
+      color: var(--text-muted);
+      line-height: 1.7;
+      margin-bottom: 1.3rem;
+    }
+
+    .project-actions {
+      display: flex;
+      gap: 0.7rem;
+      margin-top: auto;
+    }
+
+    /* Compact button variants built on the shared .cta-btn look */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.45rem;
+      font-family: var(--font-display);
+      font-size: 0.8rem;
+      font-weight: 600;
+      letter-spacing: 0.03em;
+      padding: 0.6rem 1.05rem;
+      border-radius: 9px;
+      text-decoration: none;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-primary {
+      background: var(--yellow);
+      border: 1px solid var(--yellow);
+      color: #0c2340;
+    }
+    .btn-primary:hover {
+      background: var(--yellow-soft);
+      border-color: var(--yellow-soft);
+      transform: translateY(-2px);
+    }
+    .btn-ghost {
+      background: transparent;
+      border: 1px solid var(--card-border);
+      color: var(--text);
+    }
+    .btn-ghost:hover {
+      border-color: rgba(255,255,255,0.4);
+      background: rgba(255,255,255,0.05);
+      transform: translateY(-2px);
+    }
+    /* A disabled action (e.g. an app not yet deployed) */
+    .btn[aria-disabled="true"] {
+      opacity: 0.4;
+      pointer-events: none;
+    }
+    .btn svg { display: block; }
+
+    /* Empty-state note shown while there are no live projects yet */
+    .projects-note {
+      margin-top: 2.6rem;
+      font-size: 0.82rem;
+      color: rgba(255,255,255,0.4);
+      line-height: 1.7;
+    }
+    .projects-note code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 0.78rem;
+      color: var(--blue-light);
+      background: rgba(125,184,232,0.10);
+      padding: 0.1rem 0.35rem;
+      border-radius: 4px;
+    }
+
+    @media (max-width: 560px) {
+      .projects-grid { grid-template-columns: 1fr; }
+      .project-actions { flex-direction: column; }
+      .btn { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="projects-wrap">
+
+    <header class="projects-top">
+      <a href="index.html" class="back-link">
+        <span aria-hidden="true">&larr;</span> Back to journey
+      </a>
+      <div class="projects-brand">
+        <span class="projects-brand-name">Jack Alperstein</span>
+        <span class="projects-brand-title">Public Health Data Scientist</span>
+      </div>
+    </header>
+
+    <section class="projects-intro">
+      <p class="projects-eyebrow">Interactive Work</p>
+      <h1 class="projects-title">Projects</h1>
+      <p class="projects-lede">
+        A growing collection of interactive data science tools built in R and Shiny.
+        Each launches as a live app; the source lives in its own GitHub repository.
+      </p>
+    </section>
+
+    <section class="projects-grid">
+
+      <!-- =========================================================
+           PROJECT CARD TEMPLATE — duplicate one block per project.
+           - Swap the placeholder preview for an image:
+               <div class="project-preview">
+                 <img src="assets/projects/<slug>.png" alt="<name> screenshot">
+               </div>
+           - Set the "Launch app" href to the deployed Shiny URL
+             (e.g. https://jackalperstein.shinyapps.io/<slug>/).
+             Add  target="_blank" rel="noopener"  so it opens in a new tab.
+           - Set the "View code" href to the GitHub repo.
+           - Before it's deployed, keep aria-disabled="true" on Launch.
+           ========================================================= -->
+
+      <article class="project-card">
+        <div class="project-preview placeholder">Preview coming soon</div>
+        <div class="project-body">
+          <div class="project-tags">
+            <span class="project-tag">R</span>
+            <span class="project-tag">Shiny</span>
+          </div>
+          <h2 class="project-name">Project One</h2>
+          <p class="project-desc">
+            Short description of what this interactive app does and the data
+            question it answers. Replace with real project details.
+          </p>
+          <div class="project-actions">
+            <a class="btn btn-primary" href="#" aria-disabled="true">
+              <span aria-hidden="true">&#9658;</span> Launch app
+            </a>
+            <a class="btn btn-ghost" href="#" aria-disabled="true">
+              <svg viewBox="0 0 16 16" width="15" height="15" aria-hidden="true"><path fill="currentColor" d="M8 .2A8 8 0 0 0 .2 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38l-.01-1.49c-2.23.48-2.7-1.07-2.7-1.07-.36-.93-.89-1.18-.89-1.18-.73-.5.05-.49.05-.49.8.06 1.23.83 1.23.83.72 1.23 1.88.87 2.34.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.83-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.22 2.2.82a7.6 7.6 0 0 1 4 0c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.52.56.83 1.28.83 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48l-.01 2.19c0 .21.15.46.55.38A8 8 0 0 0 8 .2z"/></svg>
+              View code
+            </a>
+          </div>
+        </div>
+      </article>
+
+      <article class="project-card">
+        <div class="project-preview placeholder">Preview coming soon</div>
+        <div class="project-body">
+          <div class="project-tags">
+            <span class="project-tag">R</span>
+            <span class="project-tag">Shiny</span>
+          </div>
+          <h2 class="project-name">Project Two</h2>
+          <p class="project-desc">
+            Short description of what this interactive app does and the data
+            question it answers. Replace with real project details.
+          </p>
+          <div class="project-actions">
+            <a class="btn btn-primary" href="#" aria-disabled="true">
+              <span aria-hidden="true">&#9658;</span> Launch app
+            </a>
+            <a class="btn btn-ghost" href="#" aria-disabled="true">
+              <svg viewBox="0 0 16 16" width="15" height="15" aria-hidden="true"><path fill="currentColor" d="M8 .2A8 8 0 0 0 .2 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38l-.01-1.49c-2.23.48-2.7-1.07-2.7-1.07-.36-.93-.89-1.18-.89-1.18-.73-.5.05-.49.05-.49.8.06 1.23.83 1.23.83.72 1.23 1.88.87 2.34.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.83-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.22 2.2.82a7.6 7.6 0 0 1 4 0c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.52.56.83 1.28.83 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48l-.01 2.19c0 .21.15.46.55.38A8 8 0 0 0 8 .2z"/></svg>
+              View code
+            </a>
+          </div>
+        </div>
+      </article>
+
+    </section>
+
+    <p class="projects-note">
+      These are placeholders. To add a real project, duplicate a
+      <code>&lt;article class="project-card"&gt;</code> block in
+      <code>projects.html</code>, point <strong>Launch app</strong> at the
+      deployed Shiny URL and <strong>View code</strong> at the GitHub repo,
+      then remove <code>aria-disabled="true"</code>.
+    </p>
+
+  </div>
+
+</body>
+</html>
